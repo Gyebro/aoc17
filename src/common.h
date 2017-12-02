@@ -12,7 +12,6 @@
 #include <c++/fstream>
 #include <c++/sstream>
 
-
 using namespace std;
 
 string file_to_string(string filename);
