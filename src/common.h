@@ -17,4 +17,14 @@ using namespace std;
 
 string file_to_string(string filename);
 
+template<typename T>
+void split(const std::string &s, char delim, T result) {
+    stringstream ss(s); string item;
+    while (getline(ss, item, delim)) {
+        *(result++) = item;
+    }
+}
+
+vector<string> split(const string &s, char delim);
+
 #endif //AOC17_COMMON_H
