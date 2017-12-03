@@ -22,10 +22,11 @@ int main() {
 #endif
 
 #ifdef DAY03
+    long int day03_input = 368078;
     cout << "Day 03: Part One\n";
-    // TODO: Tomorrow
+    cout << day03_a(day03_input) << endl;
     cout << "Day 03: Part Two\n";
-
+    cout << day03_b(day03_input) << endl;
 #endif
 
     return 0;

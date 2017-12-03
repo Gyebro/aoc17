@@ -62,3 +62,100 @@ int day02_b(string s, char delim) {
     return checksum;
 }
 
+/**
+ * Return the distance of square at address from the center of the spiral
+ * Spiral structure looks like this
+ * 17  16  15  14  13
+ * 18  5   4   3   12
+ * 19  6   1   2   11
+ * 20  7   8   9   10
+ * 21  22  23  23  .. ..
+ * Let's say the squares are in disks in annuli,
+ * First one contains 1, (n=1)
+ * Second one 1+1...3^2  (n=3)
+ * Third: 3^2+1...5^2    (n=5)
+ * Each annulus can be divided into four quadrants
+ * For example: third one (n=5) contains 4*(n-1) = 16 numbers
+ * In every quadrant, the manhattan distance from the origin is
+ *  d = (n-1)/2 + abs(i - (n-1)/2),
+ * where i is the index of the square in the quadrant
+ * @param address Address of square whose distance is returned
+ * @return Manhattan distance from '1'
+ */
+long int day03_a(long int address) {
+    // Find n
+    long int r = (long int)floor(sqrt((double)address));
+    if (r%2 == 0) r--;
+    long int n = r+2; // Odd
+    // The quadrant size of annulus n is q = n-1
+    long int q = n-1; // Even
+    // Find the index of the address in its quadrant
+    long int i = (address-r*r)%q;
+    // Find the distance
+    return q/2 + abs(i-q/2);
+}
+
+// Generate spiral up to address
+struct day03_square {
+    long int i; // x-coordinate
+    long int j; // y-coordinate
+    long int a; // address
+    long int v; // value
+};
+
+long int day03_find_value(const vector<day03_square>& squares, long int i, long int j) {
+    for (const day03_square& s : squares) {
+        if (s.i == i && s.j == j) {
+            return s.v;
+        }
+    }
+    return 0;
+}
+
+long int day03_b(long int address) {
+    vector<day03_square> squares;
+    day03_square s = {0,0,1,1};
+    squares.push_back(s);
+    long int r = 1;
+    long int n = r+2;
+    long int v = 1;
+    while (v < address) {
+        // Quadrant size at next annuli
+        long int q = n-1;
+        // Start filling up the next annuli
+        s.i++;
+        for (long int i=1; i<=n*n-r*r; i++) {
+            s.a = r*r+i;
+            // Gather the neighbours (brute force way)
+            // TODO: Optimize this
+            s.v = 0;
+            s.v += day03_find_value(squares, s.i-1, s.j-1);
+            s.v += day03_find_value(squares, s.i-1, s.j  );
+            s.v += day03_find_value(squares, s.i-1, s.j+1);
+            s.v += day03_find_value(squares, s.i  , s.j-1);
+            s.v += day03_find_value(squares, s.i  , s.j+1);
+            s.v += day03_find_value(squares, s.i+1, s.j-1);
+            s.v += day03_find_value(squares, s.i+1, s.j  );
+            s.v += day03_find_value(squares, s.i+1, s.j+1);
+            squares.push_back(s);
+            v = s.v;
+            if (v > address) break;
+            //cout << "square: (" << s.i << "," << s.j << ") = " << s.a << ", " << s.v << endl;
+            long int qi = i/q;
+            // Step to next
+            switch (qi) {
+                case 0:
+                    s.j++; break;
+                case 1:
+                    s.i--; break;
+                case 2:
+                    s.j--; break;
+                case 3:
+                    s.i++; break;
+            }
+        }
+        r+=2;
+        n+=2;
+    }
+    return v;
+}

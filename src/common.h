@@ -11,6 +11,7 @@
 #include <iostream>
 #include <c++/fstream>
 #include <c++/sstream>
+#include <math.h>
 
 using namespace std;
 

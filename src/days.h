@@ -13,4 +13,8 @@ int day02_a(string s, char delim = '\t');
 
 int day02_b(string s, char delim = '\t');
 
+long int day03_a(long int address);
+
+long int day03_b(long int address);
+
 #endif //AOC17_DAYS_H

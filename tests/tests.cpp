@@ -28,3 +28,13 @@ TEST(Day02, PartOne) {
 TEST(Day02, PartTwo) {
     EXPECT_EQ(day02_b("5 9 2 8\n9 4 7 3\n3 8 6 5", ' '), 9);
 }
+
+TEST(Day03, PartOne) {
+    EXPECT_EQ(3, day03_a(12));
+    EXPECT_EQ(2, day03_a(23));
+    EXPECT_EQ(31, day03_a(1024));
+}
+
+TEST(Day03, PartTwo) {
+    EXPECT_EQ(880, day03_b(806));
+}
