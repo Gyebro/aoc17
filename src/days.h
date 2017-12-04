@@ -17,4 +17,8 @@ long int day03_a(long int address);
 
 long int day03_b(long int address);
 
+size_t day04_a(string pplist);
+
+size_t day04_b(string pplist);
+
 #endif //AOC17_DAYS_H

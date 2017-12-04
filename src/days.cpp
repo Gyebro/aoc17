@@ -159,3 +159,41 @@ long int day03_b(long int address) {
     }
     return v;
 }
+
+size_t day04_a(string pplist) {
+    size_t validCount = 0;
+    vector<string> pps = split(pplist, '\n');
+    for (const string &pp : pps) {
+        bool valid = true;
+        vector<string> parts = split(pp, ' ');
+        for (size_t i=1; i<parts.size(); i++) {
+            string tested = parts[i];
+            for (size_t j=0; j<i; j++) {
+                if (parts[j] == tested) { valid = false; }
+            }
+            if (!valid) break;
+        }
+        if (valid) validCount++;
+    }
+    return validCount;
+}
+
+size_t day04_b(string pplist) {
+    size_t validCount = 0;
+    vector<string> pps = split(pplist, '\n');
+    for (const string &pp : pps) {
+        bool valid = true;
+        vector<string> parts = split(pp, ' ');
+        // Test current passphrase
+        for (size_t i=1; i<parts.size(); i++) {
+            string tested = parts[i];
+            // Test with all previous words
+            for (size_t j=0; j<i; j++) {
+                if (anagram_pair_test(parts[j], tested)) { valid = false; }
+            }
+            if (!valid) break;
+        }
+        if (valid) validCount++;
+    }
+    return validCount;
+}

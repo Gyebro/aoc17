@@ -1,7 +1,8 @@
 /* Define or undefine macros below for solutions */
 //#define DAY01
 //#define DAY02
-#define DAY03
+//#define DAY03
+#define DAY04
 
 #include "days.h"
 
@@ -27,6 +28,13 @@ int main() {
     cout << day03_a(day03_input) << endl;
     cout << "Day 03: Part Two\n";
     cout << day03_b(day03_input) << endl;
+#endif
+
+#ifdef DAY04
+    cout << "Day 04: Part One\n";
+    cout << day04_a(file_to_string("day04.txt")) << endl;
+    cout << "Day 04: Part Two\n";
+    cout << day04_b(file_to_string("day04.txt")) << endl;
 #endif
 
     return 0;

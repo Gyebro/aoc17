@@ -38,3 +38,17 @@ TEST(Day03, PartOne) {
 TEST(Day03, PartTwo) {
     EXPECT_EQ(880, day03_b(806));
 }
+
+TEST(Day04, PartOne) {
+    EXPECT_EQ(1, day04_a("aa bb cc dd ee"));
+    EXPECT_EQ(0, day04_a("aa bb cc dd aa"));
+    EXPECT_EQ(1, day04_a("aa bb cc dd aaa"));
+}
+
+TEST(Day04, PartTwo) {
+    EXPECT_EQ(1, day04_b("abcde fghij"));
+    EXPECT_EQ(0, day04_b("abcde xyz ecdab"));
+    EXPECT_EQ(1, day04_b("a ab abc abd abf abj"));
+    EXPECT_EQ(1, day04_b("iiii oiii ooii oooi oooo"));
+    EXPECT_EQ(0, day04_b("oiii ioii iioi iiio"));
+}

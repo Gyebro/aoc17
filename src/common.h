@@ -11,7 +11,7 @@
 #include <iostream>
 #include <c++/fstream>
 #include <c++/sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
@@ -26,5 +26,13 @@ void split(const std::string &s, char delim, T result) {
 }
 
 vector<string> split(const string &s, char delim);
+
+/**
+ * Check whether string s1 and s2 are anagrams (e.g. abcd and cadb are anagrams)
+ * @param s1
+ * @param s2
+ * @return
+ */
+bool anagram_pair_test(string s1, string s2);
 
 #endif //AOC17_COMMON_H
