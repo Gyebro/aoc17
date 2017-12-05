@@ -21,4 +21,6 @@ size_t day04_a(string pplist);
 
 size_t day04_b(string pplist);
 
+size_t day05_a(string s, bool part_two = false);
+
 #endif //AOC17_DAYS_H

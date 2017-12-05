@@ -197,3 +197,29 @@ size_t day04_b(string pplist) {
     }
     return validCount;
 }
+
+size_t day05_a(string s, bool part_two) {
+    vector<string> i_strings = split(s, '\n');
+    vector<int> instructions;
+    instructions.reserve(i_strings.size());
+    for (const string& i : i_strings) {
+        instructions.push_back(stoi(i));
+    }
+    // Start running
+    int pointer = 0;
+    int size = (int)instructions.size();
+    int jump = 0;
+    size_t steps = 0;
+    while ((0 <= pointer) && (pointer < size)) {
+        jump = instructions[pointer];
+        if (!part_two) {
+            instructions[pointer]++;
+        } else {
+            jump>=3 ? instructions[pointer]-- : instructions[pointer]++;
+        }
+
+        pointer += jump;
+        steps++;
+    }
+    return steps;
+}
