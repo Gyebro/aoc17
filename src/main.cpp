@@ -3,7 +3,8 @@
 //#define DAY02
 //#define DAY03
 //#define DAY04
-#define DAY05
+//#define DAY05
+#define DAY06
 
 #include "days.h"
 
@@ -41,8 +42,15 @@ int main() {
 #ifdef DAY05
     cout << "Day 05: Part One\n";
     cout << day05_a(file_to_string("day05.txt")) << endl;
-    cout << "Day 05: Part Rwo\n";
+    cout << "Day 05: Part Two\n";
     cout << day05_a(file_to_string("day05.txt"), true) << endl;
+#endif
+
+#ifdef DAY06
+    cout << "Day 06: Part One\n";
+    cout << day06_a(file_to_string("day06.txt")) << endl;
+    cout << "Day 06: Part Two\n";
+    cout << day06_a(file_to_string("day06.txt"), true) << endl;
 #endif
     
     return 0;

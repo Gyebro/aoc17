@@ -12,6 +12,7 @@
 #include <c++/fstream>
 #include <c++/sstream>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -34,5 +35,12 @@ vector<string> split(const string &s, char delim);
  * @return
  */
 bool anagram_pair_test(string s1, string s2);
+
+template<typename T>
+size_t max_idx(const vector<T> v) {
+    auto result = std::max_element(v.begin(), v.end());
+    auto index = std::distance(v.begin(), result);
+    return index;
+}
 
 #endif //AOC17_COMMON_H

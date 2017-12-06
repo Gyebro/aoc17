@@ -6,6 +6,8 @@
 #include "common.cpp"
 #include "days.cpp"
 
+#ifndef TODAY_ONLY
+
 TEST(Day01, PartOne) {
     EXPECT_EQ(day01_a("1122"), 3);
     EXPECT_EQ(day01_a("1111"), 4);
@@ -52,3 +54,5 @@ TEST(Day04, PartTwo) {
     EXPECT_EQ(1, day04_b("iiii oiii ooii oooi oooo"));
     EXPECT_EQ(0, day04_b("oiii ioii iioi iiio"));
 }
+
+#endif

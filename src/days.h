@@ -4,6 +4,8 @@
 #define AOC17_DAYS_H
 
 #include "common.h"
+// For fast compilation every day
+#define TODAY_ONLY
 
 int day01_a(string s);
 
@@ -22,5 +24,7 @@ size_t day04_a(string pplist);
 size_t day04_b(string pplist);
 
 size_t day05_a(string s, bool part_two = false);
+
+size_t day06_a(string s, bool part_two = false);
 
 #endif //AOC17_DAYS_H

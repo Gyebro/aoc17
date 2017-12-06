@@ -1,5 +1,7 @@
 #include "days.h"
 
+#ifndef TODAY_ONLY
+
 int day01_a(string s) {
     int sum = 0;
     size_t len = s.size();
@@ -222,4 +224,53 @@ size_t day05_a(string s, bool part_two) {
         steps++;
     }
     return steps;
+}
+
+#endif //TODAY_ONLY
+
+size_t day06_a(string s, bool part_two) {
+    vector<string> block_strings = split(s, '\t');
+    vector<size_t> banks; banks.reserve(block_strings.size());
+    for (const string& b : block_strings) {
+        banks.push_back(stoul(b));
+    }
+    // Run the redistribution
+    size_t steps = 0;
+    size_t i = 0;
+    size_t len = banks.size();
+    size_t d = 0;
+    vector< vector< size_t> > history;
+    history.push_back(banks);
+    while (true) {
+        steps++;
+        i = max_idx(banks);
+        d = banks[i];
+        banks[i] = 0;
+        for (size_t j=0; j<d; j++) {
+            i++;
+            if (i>=len) i-=len;
+            banks[i]++;
+        }
+        // Compare with all previous
+        size_t history_idx = 0;
+        for (const vector<size_t>& h: history ) {
+            history_idx++;
+            bool same = true;
+            for (size_t k=0; k<len; k++) {
+                if (h[k] != banks[k]) {
+                    same = false;
+                    break;
+                }
+            }
+            if (same) {
+                if (!part_two) {
+                    return steps;
+                } else {
+                    return steps-history_idx+1;
+                }
+            }
+        }
+        history.push_back(banks);
+    }
+    return 0;
 }
