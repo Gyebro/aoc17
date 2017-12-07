@@ -7,9 +7,13 @@
 //#define DAY06
 #define DAY07
 
+#include "macros.h"
+
 #include "days.h"
 
 int main() {
+
+#ifndef RUN_BENCHMARKS
 
 #ifdef DAY01
     cout << "Day 01: Part One\n";
@@ -57,6 +61,97 @@ int main() {
 #ifdef DAY07
     cout << "Day 07: Part One and Two\n";
     day07_a(file_to_string("day07.txt"), true);
+#endif
+
+#endif // ifndef RUN_BENCHMARKS
+
+#ifdef RUN_BENCHMARKS
+    vector<string> tasks;
+    vector<double> time_ms;
+
+    cout << "Day 01\n";
+    string day01_input = file_to_string("day01.txt");
+    tasks.emplace_back("Day 01 Part One");
+    tasks.emplace_back("Day 01 Part Two");
+    Clock c;
+    cout << day01_a(day01_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day01_b(day01_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 02\n";
+    string day02_input = file_to_string("day02.txt");
+    tasks.emplace_back("Day 02 Part One");
+    tasks.emplace_back("Day 02 Part Two");
+    c.start();
+    cout << day02_a(day02_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day02_b(day02_input) << endl;;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 03\n";
+    long int day03_input = 368078;
+    tasks.emplace_back("Day 03 Part One");
+    tasks.emplace_back("Day 03 Part Two");
+    c.start();
+    cout << day03_a(day03_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day03_b(day03_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 04\n";
+    string day04_input = file_to_string("day04.txt");
+    tasks.emplace_back("Day 04 Part One");
+    tasks.emplace_back("Day 04 Part Two");
+    c.start();
+    cout << day04_a(day04_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day04_b(day04_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 05\n";
+    string day05_input = file_to_string("day05.txt");
+    tasks.emplace_back("Day 05 Part One");
+    tasks.emplace_back("Day 05 Part Two");
+    c.start();
+    cout << day05_a(day05_input, false) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day05_a(day05_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 06\n";
+    string day06_input = file_to_string("day06.txt");
+    tasks.emplace_back("Day 06 Part One");
+    tasks.emplace_back("Day 06 Part Two");
+    c.start();
+    cout << day06_a(day06_input, false) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day06_a(day06_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 07\n";
+    string day07_input = file_to_string("day07.txt");
+    tasks.emplace_back("Day 07 Part One");
+    tasks.emplace_back("Day 07 Part Two");
+    c.start();
+    day07_a(day07_input, false);
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    day07_a(day07_input, true);
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << endl << endl;
+    cout << "Task           \t\tt [ms]\n";
+    cout << "---------------\t\t------\n";
+    for (size_t i=0; i<tasks.size(); i++) {
+        cout << tasks[i] << "\t\t" << time_ms[i] << '\n';
+    }
 #endif
     
     return 0;

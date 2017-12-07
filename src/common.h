@@ -13,6 +13,7 @@
 #include <c++/sstream>
 #include <cmath>
 #include <algorithm>
+#include <chrono>
 
 using namespace std;
 
@@ -44,5 +45,32 @@ size_t max_idx(const vector<T> v) {
 }
 
 string trim_spaces(const string s);
+
+template <class Clock>
+void
+display_precision()
+{
+    typedef std::chrono::duration<double, std::nano> NS;
+    NS ns = typename Clock::duration(1);
+    std::cout << ns.count() << " ns\n";
+}
+
+class Clock {
+private:
+    chrono::high_resolution_clock::time_point t_start, t_stop;
+public:
+    Clock();
+    void start();
+    void stop();
+    double read_sec();
+    long long int read_millisec();
+    long long int read_microsec();
+    long long int read_nanosec();
+    void tell_sec();
+    void tell_millisec();
+    void tell_microsec();
+    void tell_nanosec();
+};
+
 
 #endif //AOC17_COMMON_H
