@@ -43,4 +43,6 @@ size_t max_idx(const vector<T> v) {
     return index;
 }
 
+string trim_spaces(const string s);
+
 #endif //AOC17_COMMON_H

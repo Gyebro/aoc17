@@ -30,3 +30,11 @@ bool anagram_pair_test(string s1, string s2) {
         return false;
     }
 }
+
+string trim_spaces(string value) {
+    // Remove leading spaces
+    value.erase(value.begin(), std::find_if(value.begin(), value.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
+    // Remove trailing ones
+    value.erase(std::find_if(value.rbegin(), value.rend(), std::bind1st(std::not_equal_to<char>(), ' ')).base(), value.end());
+    return value;
+}

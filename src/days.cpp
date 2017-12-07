@@ -226,8 +226,6 @@ size_t day05_a(string s, bool part_two) {
     return steps;
 }
 
-#endif //TODAY_ONLY
-
 size_t day06_a(string s, bool part_two) {
     vector<string> block_strings = split(s, '\t');
     vector<size_t> banks; banks.reserve(block_strings.size());
@@ -254,7 +252,6 @@ size_t day06_a(string s, bool part_two) {
         // Compare with all previous
         size_t history_idx = 0;
         for (const vector<size_t>& h: history ) {
-            history_idx++;
             bool same = true;
             for (size_t k=0; k<len; k++) {
                 if (h[k] != banks[k]) {
@@ -266,11 +263,168 @@ size_t day06_a(string s, bool part_two) {
                 if (!part_two) {
                     return steps;
                 } else {
-                    return steps-history_idx+1;
+                    return steps-history_idx;
                 }
             }
+            history_idx++;
         }
         history.push_back(banks);
     }
     return 0;
+}
+
+#endif //TODAY_ONLY
+
+struct day07_node {
+    string name;
+    int value;
+    int sum;
+    bool has_parent;
+    vector<string> children;
+    size_t parent_idx;
+};
+
+size_t day07_find_name(const vector<day07_node>& g, const string& name) {
+    for (size_t j=0; j<g.size(); j++) {
+        if (g[j].name == name) {
+            return j;
+        }
+    }
+    cout << "ERROR!\n";
+    return -1;
+}
+
+// Recursively updates the sum of nodes
+int day07_update_sum(vector<day07_node>& g, const size_t idx) {
+    if (g[idx].children.size() == 0) {
+        g[idx].sum = g[idx].value;
+        return g[idx].sum;
+    } else {
+        int total = g[idx].value;
+        for (const string& child : g[idx].children) {
+            // Child idx
+            const size_t child_idx = day07_find_name(g, child);
+            total += day07_update_sum(g, child_idx);
+        }
+        g[idx].sum = total;
+        return total;
+    }
+}
+
+// Recursively find the unbalanced node
+int day07_find_fault(vector<day07_node>& g, const size_t idx, const int diff=0) {
+    if (g[idx].children.size() == 0) {
+        return 0;
+    } else {
+        vector<int> sums;
+        for (const string& child : g[idx].children) {
+            const size_t child_idx = day07_find_name(g, child);
+            sums.push_back(g[child_idx].sum);
+        }
+        int sfirst = sums[0];
+        // Either sfirst differs from the others or one other is different
+        size_t diffs = 0;
+        for (size_t j=1; j<sums.size(); j++) {
+            if (sums[j] != sfirst) {
+                diffs++;
+                cout << "Child '" << g[idx].children[j] << "' has different sum: " << sums[j] <<
+                     " (expected: " << sfirst << ", diff: " << sfirst-sums[j] << ")\n";
+                // child j is the faulty, investigate
+                const size_t child_idx = day07_find_name(g, g[idx].children[j]);
+                day07_find_fault(g, child_idx, sfirst-sums[j]);
+            }
+        }
+        if (diffs == 0) {
+            cout << "All children of '" << g[idx].name << "' are balanced, apply the diff here!\n";
+            cout << "Change value from '" << g[idx].value << "' to '" << g[idx].value+diff << "'.\n";
+        }
+    }
+}
+
+void day07_a(string s, bool part_two) {
+    // Build tree graph
+    vector<day07_node> g;
+    day07_node n;
+    vector<string> node_strings = split(s, '\n');
+    vector<string> parts;
+    vector<string> items;
+    for (const string& node_string : node_strings) {
+        // Split around '->'
+        parts = split(node_string, '-');
+        if (parts.size() > 1) {
+            // This line had "->" in it, start building up the node
+            items = split(parts[0], ' ');
+            n.name = items[0];
+            n.value = stoi(items[1].substr(1, items[1].size()-2));
+            vector<string> ch;
+            for (const string& c : split(parts[1].substr(2, parts[1].size()-2), ',')) {
+                ch.push_back(trim_spaces(c));
+            }
+            n.children = ch;
+            g.push_back(n);
+        } else {
+            // Its a single terminal node
+            items = split(parts[0], ' ');
+            n.name = items[0];
+            n.value = stoi(items[1].substr(1, items[1].size()-2));
+            vector<string> ch; ch.resize(0);
+            n.children = ch;
+            g.push_back(n);
+        }
+        //cout << "Added node: name: " << n.name << ", val: " << n.value << ", ch count: " << n.children.size() << endl;
+    }
+    // Set child indices and root flags
+    for (size_t i=0; i<g.size(); i++) {
+        if (g[i].children.size() > 0) {
+            for (string child : g[i].children) {
+                size_t j = day07_find_name(g, child);
+                g[j].parent_idx = i;
+                g[j].has_parent = true;
+            }
+        }
+    }
+    // Find the nodes without parent
+    string root_name;
+    for (const day07_node& ni : g) {
+        if (!ni.has_parent) {
+            cout << "'" << ni.name << "' doesn't have parent, it is the root node!\n";
+            root_name = ni.name;
+        }
+    }
+    if (part_two) {
+        size_t root_idx = day07_find_name(g, root_name);
+        // Update sums
+        size_t all_sum = day07_update_sum(g, root_idx);
+        cout << "Fun fact: sum of whole graph is " << all_sum << ".\n";
+        // Check balances
+        size_t unbalanced_idx = 0;
+        for (size_t i=0; i<g.size(); i++) {
+            if (g[i].children.size() == 0) {
+                // Terminal node balanced always
+            } else {
+                bool balanced = true;
+                vector<int> sums;
+                for (const string& child : g[i].children) {
+                    const size_t child_idx = day07_find_name(g, child);
+                    sums.push_back(g[child_idx].sum);
+                }
+                // Check if all values are the same
+                int sfirst = sums[0];
+                size_t diffs = 0;
+                for (size_t j=1; j<sums.size(); j++) {
+                    if (sums[j] != sfirst) {
+                        balanced = false;
+                        diffs++;
+                    }
+                }
+                if (!balanced & (diffs==1)) {
+                    cout << "Node '" << g[i].name << "' is not balanced! It's index is: '" << i << "'.\n";
+                    unbalanced_idx = i;
+                    break;
+                }
+            }
+        }
+        // Check who needs to be fixed
+        day07_find_fault(g, unbalanced_idx);
+    }
 }
