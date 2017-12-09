@@ -27,4 +27,8 @@ size_t day06_a(string s, bool part_two = false);
 
 void day07_a(string s, bool part_two = false, bool verbose = false);
 
+void day08_a(string s, bool part_two = false, bool verbose = false);
+
+size_t day09_a(string s, bool part_two = false);
+
 #endif //AOC17_DAYS_H

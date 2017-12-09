@@ -279,8 +279,6 @@ size_t day06_a(string s, bool part_two) {
     return 0;
 }
 
-#endif //TODAY_ONLY
-
 struct day07_node {
     string name;
     int value;
@@ -441,5 +439,262 @@ void day07_a(string s, bool part_two, bool verbose) {
         }
         // Check who needs to be fixed
         day07_find_fault(g, unbalanced_idx);
+    }
+}
+
+enum class day08_itype {
+    inc,
+    dec
+};
+
+enum class day08_ctype {
+    equal,          /* == */
+    greater,        /* >  */
+    less,           /* <  */
+    greater_or_eq,  /* >= */
+    less_or_eq,     /* <= */
+    not_equal       /* != */
+};
+
+struct day08_instruction {
+    string reg;
+    day08_itype inst_type;
+    int val;
+    string cond_reg;
+    day08_ctype cond_type;
+    int cond_val;
+
+};
+
+struct day08_reg {
+    string name;
+    int value;
+};
+
+bool day08_has_reg(const vector<day08_reg>& r, const string& name) {
+    for (size_t i = 0; i < r.size(); i++) {
+        if (r[i].name == name) return true;
+    }
+    return false;
+}
+
+size_t day08_find_reg(const vector<day08_reg>& r, const string& name) {
+    for (size_t i=0; i<r.size(); i++) {
+        if (r[i].name == name) return i;
+    }
+    cout << "ERROR: Cannot find register '" << name << "'\n";
+    return 0;
+}
+
+int day08_read_reg(const vector<day08_reg>& r, const string& name) {
+    size_t idx = day08_find_reg(r, name);
+    return r[idx].value;
+}
+
+void day08_write_reg(vector<day08_reg>& r, const string& name, int new_value) {
+    size_t idx = day08_find_reg(r, name);
+    r[idx].value = new_value;
+}
+
+void day08_operate_reg(vector<day08_reg>& r, const string& name, day08_itype i, int val) {
+    // Get current value
+    int curr_val = day08_read_reg(r, name);
+    int new_val;
+    switch (i) {
+        case day08_itype::inc:
+            new_val = curr_val + val;
+            break;
+        case day08_itype::dec:
+            new_val = curr_val - val;
+            break;
+    }
+    day08_write_reg(r, name, new_val);
+}
+
+void day08_operate_reg(vector<day08_reg>& r, const day08_instruction& i) {
+    day08_operate_reg(r, i.reg, i.inst_type, i.val);
+}
+
+bool day08_check_condition(day08_instruction i, const vector<day08_reg>& r) {
+    string cond_reg_name = i.cond_reg;
+    int cond_reg_val = day08_read_reg(r, cond_reg_name);
+    int cond_right_hand_side = i.cond_val;
+    switch (i.cond_type) {
+        case day08_ctype::equal:
+            return (cond_reg_val == cond_right_hand_side);
+        case day08_ctype::not_equal:
+            return (cond_reg_val != cond_right_hand_side);
+        case day08_ctype::greater:
+            return (cond_reg_val > cond_right_hand_side);
+        case day08_ctype::greater_or_eq:
+            return (cond_reg_val >= cond_right_hand_side);
+        case day08_ctype::less:
+            return (cond_reg_val < cond_right_hand_side);
+        case day08_ctype::less_or_eq:
+            return (cond_reg_val <= cond_right_hand_side);
+    }
+    cout << "ERROR: invalid condition type!\n";
+    return false;
+}
+
+void day08_a(string s, bool part_two, bool verbose) {
+    vector<string> instr = split(s, '\n');
+    vector<string> parts;
+    day08_instruction i;
+    vector<day08_instruction> instructions;
+    for (const string& istr : instr) {
+        parts = split(istr, ' ');
+        // Every instruction should consist of 7 parts
+        // Example: t dec 614 if ewg <= -263
+        if (parts.size() == 7) {
+            i.reg = parts[0];
+            if (parts[1] == "dec") {
+                i.inst_type = day08_itype::dec;
+            } else if (parts[1] == "inc") {
+                i.inst_type = day08_itype::inc;
+            } else {
+                cout << "ERROR: Invalid instruction type (not inc or dec)\n";
+            }
+            i.val = stoi(parts[2]);
+            if (!(parts[3] == "if")) {
+                cout << "ERROR: Invalid instruction cond (not if)\n";
+            }
+            i.cond_reg = parts[4];
+            string cond_str = parts[5];
+            if (cond_str == "==") {
+                i.cond_type = day08_ctype::equal;
+            } else if (cond_str == "!=") {
+                i.cond_type = day08_ctype::not_equal;
+            } else if (cond_str == ">") {
+                i.cond_type = day08_ctype::greater;
+            } else if (cond_str == ">=") {
+                i.cond_type = day08_ctype::greater_or_eq;
+            } else if (cond_str == "<") {
+                i.cond_type = day08_ctype::less;
+            } else if (cond_str == "<=") {
+                i.cond_type = day08_ctype::less_or_eq;
+            } else {
+                cout << "ERROR: Invalid instruction condition operator: " << cond_str << endl;
+            }
+            i.cond_val = stoi(parts[6]);
+            instructions.push_back(i);
+        } else {
+            cout << "ERROR: Invalid instruction found in input file\n";
+        }
+    }
+    if (verbose) cout << "Parsed " << instructions.size() << " instructions\n";
+
+    // Initialize registers
+    vector<day08_reg> registers;
+    for (const day08_instruction& inst : instructions) {
+        string iname1 = inst.reg;
+        string iname2 = inst.cond_reg;
+        day08_reg reg;
+        reg.value = 0;
+        if (!day08_has_reg(registers, iname1)) {
+            // Initialize instruction register
+            reg.name = iname1;
+            registers.push_back(reg);
+        }
+        if (!day08_has_reg(registers, iname2)) {
+            // Initialize condition register
+            reg.name = iname2;
+            registers.push_back(reg);
+        }
+    }
+    if (verbose) cout << "Initialized " << registers.size() << " registers (0 value)\n";
+
+    // Run the program
+    int max_during_process = 0;
+    for (const day08_instruction& inst : instructions) {
+        if (day08_check_condition(inst, registers)) {
+            day08_operate_reg(registers, inst);
+        }
+        if (part_two) {
+            // Update max
+            int max_val = 0;
+            for (const day08_reg& r : registers) {
+                if (r.value > max_val) max_val = r.value;
+            }
+            if (max_val > max_during_process) max_during_process = max_val;
+        }
+    }
+
+    // Print registers
+    int max = 0;
+    string max_name;
+    for (const day08_reg& r : registers) {
+        //cout << r.name << "\t" << r.value << endl;
+        if (r.value > max) {
+            max = r.value;
+            max_name = r.name;
+        }
+    }
+    if (verbose) {
+        cout << "Max value is '" << max << "' in '" << max_name << "'\n";
+        cout << "Max value during the whole process is '" << max_during_process << "'\n";
+    } else {
+        cout << max << endl;
+        cout << max_during_process << endl;
+    }
+}
+
+#endif //TODAY_ONLY
+
+size_t day09_a(string s, bool part_two) {
+    vector<size_t> group_counts;
+    group_counts.push_back(0);
+    size_t depth = 0;
+    bool garbage = false;
+    bool skip = false;
+    size_t garbage_chars = 0;
+    for (const char c : s) {
+        if (!skip) {
+            switch (c) {
+                case '{':
+                    if (!garbage) {
+                        // Descend and increment group counter
+                        if (group_counts.size() - 1 < depth) { group_counts.push_back(0); }
+                        group_counts[depth]++;
+                        depth++;
+                    } else {
+                        garbage_chars++;
+                    }
+                    break;
+                case '}':
+                    if (!garbage) {
+                        depth--;
+                    } else {
+                        garbage_chars++;
+                    }
+                    break;
+                case '<':
+                    if (!garbage) { garbage = true; }
+                    else { garbage_chars++; }
+                    break;
+                case '!':
+                    if (garbage) skip = true;
+                    break;
+                case '>':
+                    if (!garbage) cout << "Warning: garbage end token before garbage open!\n";
+                    garbage = false;
+                    break;
+                default:
+                    if (garbage) garbage_chars++;
+                    break;
+            }
+        } else {
+            skip = false;
+            // Skip this character
+        }
+    }
+    size_t sum=0;
+    for (size_t i=0; i<group_counts.size(); i++) {
+        sum += (i+1)*group_counts[i];
+    }
+    if (!part_two) {
+        return sum;
+    } else {
+        return garbage_chars;
     }
 }
