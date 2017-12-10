@@ -639,8 +639,6 @@ void day08_a(string s, bool part_two, bool verbose) {
     }
 }
 
-#endif //TODAY_ONLY
-
 size_t day09_a(string s, bool part_two) {
     vector<size_t> group_counts;
     group_counts.push_back(0);
@@ -697,4 +695,83 @@ size_t day09_a(string s, bool part_two) {
     } else {
         return garbage_chars;
     }
+}
+
+#endif //TODAY_ONLY
+
+void day10_round(const vector<size_t>& lengths, size_t& current_position, size_t& skip_size, vector<size_t>& buffer) {
+    for (const size_t& length : lengths) {
+        size_t buffer_size = buffer.size();
+        size_t idx_start = current_position;
+        size_t idx_end = current_position + length;
+        // Wrap around if needed
+        if (idx_start >= buffer_size) { idx_start -= buffer_size; }
+        if (idx_end >= buffer_size) { idx_end -= buffer_size; }
+        // Reverse elements from idx_start to idx_end
+        if (idx_start >= idx_end) {
+            rotate(buffer.begin(), buffer.begin() + idx_start, buffer.end());
+            reverse(buffer.begin(), buffer.begin() + length);
+            rotate(buffer.begin(), buffer.begin() + buffer_size - idx_start, buffer.end());
+        } else if (idx_start < idx_end) {
+            reverse(buffer.begin() + idx_start, buffer.begin() + idx_end);
+        }
+        // Update current position
+        current_position += length + skip_size;
+        if (current_position >= buffer_size) { current_position = current_position % buffer_size; }
+        skip_size++;
+        if (skip_size >= buffer_size) { skip_size = skip_size % buffer_size; }
+    }
+}
+
+
+size_t day10_a(string s, const size_t buffer_size) {
+    // Split string around ','
+    vector<string> lengths_str = split(s, ',');
+    vector<size_t> lengths;
+    for (const string& str : lengths_str) lengths.push_back(stoul(str));
+    // Initialize circular list
+    vector<size_t> buffer;
+    for (size_t i=0; i<buffer_size; i++) buffer.push_back(i);
+    // Initialize operation
+    size_t current_position = 0;
+    size_t skip_size = 0;
+    day10_round(lengths, current_position, skip_size, buffer);
+    return buffer[0]*buffer[1];
+}
+
+string day10_b(string s) {
+    vector<size_t> lengths;
+    for (const char c : s) {
+        lengths.push_back((size_t)(c));
+    }
+    // Add standard length sequence
+    lengths.push_back(17);
+    lengths.push_back(31);
+    lengths.push_back(73);
+    lengths.push_back(47);
+    lengths.push_back(23);
+    // Initialize buffer
+    vector<size_t> buffer;
+    const size_t buffer_size = 256; const size_t rounds = 64;
+    for (size_t i=0; i<buffer_size; i++) buffer.push_back(i);
+    size_t current_position = 0;
+    size_t skip_size = 0;
+    // Run 64 passes
+    for (size_t r=0; r<rounds; r++) {
+        //cout << "Pass " << r << ", pos: " << current_position << ", skip: " << skip_size << endl;
+        day10_round(lengths, current_position, skip_size, buffer);
+    }
+    // Calculate dense hash
+    const size_t len = 16;
+    vector<uint8_t> dense_hash;
+    for (size_t j=0; j<buffer_size; j+=len) {
+        uint8_t val = (uint8_t )buffer[j];
+        for (size_t k=j+1; k<j+len; k++) {
+            val ^= (uint8_t )buffer[k];
+        }
+        dense_hash.push_back(val);
+    }
+    if (dense_hash.size() != 16) { cout << "Error: incorrect dense hash size!\n"; }
+    // Convert to hex representation
+    return bytes_to_hex_string(dense_hash);
 }

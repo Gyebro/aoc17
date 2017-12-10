@@ -31,4 +31,8 @@ void day08_a(string s, bool part_two = false, bool verbose = false);
 
 size_t day09_a(string s, bool part_two = false);
 
+size_t day10_a(string s, const size_t buffer_size = 256);
+
+string day10_b(string s);
+
 #endif //AOC17_DAYS_H

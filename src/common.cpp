@@ -85,3 +85,12 @@ void Clock::tell_microsec() {
 void Clock::tell_nanosec() {
     cout << "Computation took: " << read_nanosec() << " [us]\n";
 }
+
+string bytes_to_hex_string(vector<uint8_t> bytes) {
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    for (const uint8_t &b : bytes) {
+        ss << std::setw(2) << (int)b;
+    }
+    return ss.str();
+}

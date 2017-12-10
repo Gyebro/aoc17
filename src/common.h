@@ -14,6 +14,7 @@
 #include <cmath>
 #include <algorithm>
 #include <chrono>
+#include <iomanip>
 
 using namespace std;
 
@@ -72,5 +73,6 @@ public:
     void tell_nanosec();
 };
 
+string bytes_to_hex_string(vector<uint8_t> bytes);
 
 #endif //AOC17_COMMON_H
