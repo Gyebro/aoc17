@@ -697,8 +697,6 @@ size_t day09_a(string s, bool part_two) {
     }
 }
 
-#endif //TODAY_ONLY
-
 void day10_round(const vector<size_t>& lengths, size_t& current_position, size_t& skip_size, vector<size_t>& buffer) {
     for (const size_t& length : lengths) {
         size_t buffer_size = buffer.size();
@@ -774,4 +772,81 @@ string day10_b(string s) {
     if (dense_hash.size() != 16) { cout << "Error: incorrect dense hash size!\n"; }
     // Convert to hex representation
     return bytes_to_hex_string(dense_hash);
+}
+
+#endif //TODAY_ONLY
+
+template <class T>
+size_t find_idx(const vector<T> &c, const T& e) {
+    size_t i;
+    for (i=0; i<c.size(); i++) {
+        if (c[i] == e) return i;
+    }
+    return i;
+}
+
+size_t day11_get_steps(vector<size_t> counts) {
+    // Counts show steps in order: N, NE, SE, S, SW, NW
+    // N - S
+    if (counts[0] > counts[3]) {
+        counts[0]-=counts[3];
+        counts[3]=0;
+    } else {
+        counts[3]-=counts[0];
+        counts[0]=0;
+    }
+    // NE - SW
+    if (counts[1] > counts[4]) {
+        counts[1]-=counts[4];
+        counts[4]=0;
+    } else {
+        counts[4]-=counts[1];
+        counts[1]=0;
+    }
+    // SE - NW
+    if (counts[2] > counts[5]) {
+        counts[2]-=counts[5];
+        counts[5]=0;
+    } else {
+        counts[5]-=counts[2];
+        counts[2]=0;
+    }
+    // Combine
+    size_t sum = 0;
+    size_t min = counts[max_idx(counts)];
+    for (size_t s : counts) {
+        sum += s;
+        if ((s != 0) && (s < min)) {
+            min = s;
+        }
+    }
+    return sum-min;
+}
+
+size_t day11_a(string s, bool part_two) {
+    vector<string> directions = split(s, ',');
+    vector<size_t> counts(6); // N, NE, SE, S, SW, NW
+    for (size_t i=0; i<6; i++) counts[i]=0;
+    vector<string> dir;
+    dir.emplace_back("n");
+    dir.emplace_back("ne");
+    dir.emplace_back("se");
+    dir.emplace_back("s");
+    dir.emplace_back("sw");
+    dir.emplace_back("nw");
+    size_t max_length = 0;
+    size_t curr_length = 0;
+    for (const string & d : directions) {
+        counts[find_idx(dir,d)]++;
+        if (part_two) {
+            curr_length = day11_get_steps(counts);
+            if (max_length < curr_length) { max_length = curr_length; }
+        }
+    }
+    if (!part_two) {
+        return day11_get_steps(counts);
+    } else {
+        return max_length;
+    }
+
 }

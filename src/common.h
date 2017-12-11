@@ -45,6 +45,13 @@ size_t max_idx(const vector<T> v) {
     return index;
 }
 
+template<typename T>
+size_t min_idx(const vector<T> v) {
+    auto result = std::min_element(v.begin(), v.end());
+    auto index = std::distance(v.begin(), result);
+    return index;
+}
+
 string trim_spaces(const string s);
 
 template <class Clock>

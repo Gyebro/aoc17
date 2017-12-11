@@ -35,4 +35,6 @@ size_t day10_a(string s, const size_t buffer_size = 256);
 
 string day10_b(string s);
 
+size_t day11_a(string s, bool part_two = false);
+
 #endif //AOC17_DAYS_H
