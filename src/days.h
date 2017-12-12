@@ -37,4 +37,6 @@ string day10_b(string s);
 
 size_t day11_a(string s, bool part_two = false);
 
+size_t day12_a(string s, bool part_two = false);
+
 #endif //AOC17_DAYS_H

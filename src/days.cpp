@@ -774,8 +774,6 @@ string day10_b(string s) {
     return bytes_to_hex_string(dense_hash);
 }
 
-#endif //TODAY_ONLY
-
 template <class T>
 size_t find_idx(const vector<T> &c, const T& e) {
     size_t i;
@@ -848,5 +846,85 @@ size_t day11_a(string s, bool part_two) {
     } else {
         return max_length;
     }
+}
 
+#endif //TODAY_ONLY
+
+struct vertex {
+    size_t id;
+    vector<size_t> edges;
+    bool visited;
+};
+
+vector<size_t> day12_get_group(vector<vertex> &g, const size_t root_id) {
+    // DFS
+    vector<size_t> targets;
+    vector<size_t> group;
+    targets.push_back(root_id);
+    vector<size_t> new_targets;
+    bool dfs = true;
+    while (dfs) {
+        new_targets.resize(0);
+        for (size_t id : targets) {
+            g[id].visited = true;
+            group.push_back(id);
+            for (size_t e : g[id].edges) {
+                if (! g[e].visited) {
+                    new_targets.push_back(e);
+                }
+            }
+        }
+        if (new_targets.empty()) dfs = false;
+        targets = new_targets;
+    }
+    return group;
+}
+
+size_t day12_count_graph_size(vector<vertex> &g, const size_t root_id) {
+    return day12_get_group(g, root_id).size();
+}
+
+size_t day12_a(string input, bool part_two) {
+    vector<string> vertex_strings = split(input, '\n');
+    vector<string> parts;
+    vertex v;
+    v.visited = false;
+    vector<vertex> g;
+    for (const string& s : vertex_strings) {
+        // self <=> x, y, z
+        parts = split(s, '>');
+        v.id = stoul(parts[0].substr(0, parts[0].size()-3));
+        v.edges.resize(0);
+        for (const string& e : split(parts[1],',')) {
+            v.edges.push_back(stoul(e));
+        }
+        g.push_back(v);
+        //cout << "Added vertex '" << v.id << "' with edges to: ";
+        //for (size_t e : v.edges) cout << e << " ";
+        //cout << endl;
+    }
+    // Traverse graph starting from id 0
+    if (!part_two) {
+        return day12_count_graph_size(g, 0);
+    } else {
+        bool exploring = true;
+        size_t starting_vertex = 0;
+        size_t groups = 0;
+        while (exploring) {
+            vector<size_t> group = day12_get_group(g, starting_vertex);
+            groups++;
+            //cout << "Group connected to '" << starting_vertex << "' with size: " << group.size() << endl;
+            // Select next index from g which is unexplored, also terminate if no unvisited vertex found
+            exploring = false;
+            for (size_t i=0; i<g.size(); i++) {
+                if (!g[i].visited) {
+                    starting_vertex = i; exploring = true;
+                }
+            }
+        }
+        return groups;
+    }
+
+
+    return 0;
 }
