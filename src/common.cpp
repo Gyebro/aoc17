@@ -94,3 +94,27 @@ string bytes_to_hex_string(vector<uint8_t> bytes) {
     }
     return ss.str();
 }
+
+WinClock::WinClock() {
+    QueryPerformanceFrequency(&li);
+    PCFreq = double(li.QuadPart)/1000.0;
+    start();
+}
+
+void WinClock::start() {
+    QueryPerformanceCounter(&li);
+    CounterStart = li.QuadPart;
+}
+
+void WinClock::stop() {
+    QueryPerformanceCounter(&li);
+    CounterStop = li.QuadPart;
+}
+
+double WinClock::read_millisec() {
+    return double(CounterStop-CounterStart)/PCFreq;
+}
+
+double WinClock::read_microsec() {
+    return read_millisec()/1000.0;
+}

@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
+#include "windows.h"
 
 using namespace std;
 
@@ -78,6 +79,19 @@ public:
     void tell_millisec();
     void tell_microsec();
     void tell_nanosec();
+};
+
+class WinClock {
+private:
+    double PCFreq;
+    LARGE_INTEGER li;
+    __int64 CounterStart, CounterStop;
+public:
+    WinClock();
+    void start();
+    void stop();
+    double read_millisec();
+    double read_microsec();
 };
 
 string bytes_to_hex_string(vector<uint8_t> bytes);

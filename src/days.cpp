@@ -848,8 +848,6 @@ size_t day11_a(string s, bool part_two) {
     }
 }
 
-#endif //TODAY_ONLY
-
 struct vertex {
     size_t id;
     vector<size_t> edges;
@@ -924,7 +922,86 @@ size_t day12_a(string input, bool part_two) {
         }
         return groups;
     }
-
-
     return 0;
+}
+
+#endif //TODAY_ONLY
+
+size_t day13_a(string s, bool part_two) {
+    WinClock c; c.start();
+    vector<size_t> depth, range;
+    for (const string& line : split(s, '\n')) {
+        vector<string> parts = split(line, ':');
+        depth.push_back(stoul(parts[0]));
+        range.push_back(stoul(parts[1]));
+    }
+    c.stop(); cout << "Parsing data: " << c.read_millisec() << " [ms]\n";
+    //cout << "Firewall has " << depth.size() << " layers\n";
+    // Calculate which scanner catches our packet
+    /**
+     * The time(s) for layer L at depth D with range R, where the scanner
+     * is at the top is
+     *  t_top = 2*(R-1)*k,
+     * That is for a layer with R=5, the scanner is at the top at
+     *  t_top = 0,8,16,24 etc
+     * Because our packet starts at D=0 and descends 1 depth at each time step,
+     * to check if its caught at layer L
+     *  caught = D == 2*(R-1)*k
+     *  that is D%(2*R-2)==0
+     */
+    c.start();
+    size_t caught=0;
+    size_t severity=0;
+    for (size_t i=0; i<depth.size(); i++) {
+        if (depth[i] % (2*range[i]-2) == 0) {
+            caught++;
+            severity += depth[i]*range[i];
+        }
+    }
+    //cout << "Packet caught in " << caught << " layers!\n";
+    if (!part_two) {
+        return severity;
+    } else {
+        c.stop();
+        cout << "Severity: " << severity << endl;
+        cout << "Calculation time: " << c.read_millisec() << " [ms]\n";
+    }
+    // Part two: now add a delay so that our packet won't get caught at all
+    /**
+     * This time our packet starts at D=0 at T0 and descends 1 depth at each time step,
+     * to check if its caught at layer L
+     *  t_top = 2*(R-1)*k, depth: d=D
+     * packet is at depth:
+     *  d_packet = t+t0
+     *  that is (d+T0)%(2*R-2)==0
+     */
+    // Brute force solution
+    c.start();
+    size_t t0 = 0;
+    while (true) {
+        t0++;
+        bool pass = true;
+        for (size_t i=0; i<depth.size(); i++) {
+            if ((t0+depth[i]) % (2*range[i]-2) == 0) {
+                pass = false;
+                break;
+            }
+        }
+        if (pass) break;
+    }
+    c.stop();
+    cout << "Lowest delay: " << t0 << endl;
+    cout << "Calculation time: " << c.read_millisec() << " [ms]\n";
+    // Elegant solution
+    /**
+     * for every depth d and range r
+     *  (D+T0)%(2*R-2)==0
+     * should be satisfied, rearranging:
+     *  with RR = 2*R-2,
+     *  (D%RR + T0%RR)%RR == 0
+     * that
+     *
+     */
+    return t0;
+
 }
