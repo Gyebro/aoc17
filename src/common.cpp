@@ -3,6 +3,7 @@
 //
 
 #include <c++/algorithm>
+#include <c++/bitset>
 #include "common.h"
 
 string file_to_string(string filename) {
@@ -117,4 +118,14 @@ double WinClock::read_millisec() {
 
 double WinClock::read_microsec() {
     return read_millisec()/1000.0;
+}
+
+string hex_string_to_binary(const string s) {
+    stringstream ss;
+    for (size_t i=0; i<s.size(); i+=2) {
+        string hex = s.substr(i,2);
+        size_t value = stoul(hex,0,16);
+        ss << bitset<8>(value);
+    }
+    return ss.str();
 }

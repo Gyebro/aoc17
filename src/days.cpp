@@ -1,7 +1,9 @@
+#include <c++/bitset>
 #include "macros.h"
 #include "days.h"
 
 #ifndef TODAY_ONLY
+#endif //TODAY_ONLY
 
 int day01_a(string s) {
     int sum = 0;
@@ -774,6 +776,10 @@ string day10_b(string s) {
     return bytes_to_hex_string(dense_hash);
 }
 
+string knot_hash(const string s) {
+    return day10_b(s);
+}
+
 template <class T>
 size_t find_idx(const vector<T> &c, const T& e) {
     size_t i;
@@ -925,7 +931,7 @@ size_t day12_a(string input, bool part_two) {
     return 0;
 }
 
-#endif //TODAY_ONLY
+
 
 size_t day13_a(string s, bool part_two) {
     WinClock c; c.start();
@@ -993,15 +999,142 @@ size_t day13_a(string s, bool part_two) {
     cout << "Lowest delay: " << t0 << endl;
     cout << "Calculation time: " << c.read_millisec() << " [ms]\n";
     // Elegant solution
-    /**
-     * for every depth d and range r
-     *  (D+T0)%(2*R-2)==0
-     * should be satisfied, rearranging:
-     *  with RR = 2*R-2,
-     *  (D%RR + T0%RR)%RR == 0
-     * that
-     *
-     */
+    // Inverse Chinese Remainder Theorem
     return t0;
+}
 
+struct day14_node {
+    pair<int,int> coord;
+    bool occupied;
+    bool visited;
+    size_t group;
+};
+
+vector<pair<int,int>> day14_get_neighbours(const pair<int,int> coord) {
+    int i = coord.first;
+    int j = coord.second;
+    vector<pair<int,int>> n;
+    if (i>0)    n.emplace_back(pair<int,int>(i-1,j));
+    if (i<127)  n.emplace_back(pair<int,int>(i+1,j));
+    if (j>0)    n.emplace_back(pair<int,int>(i,j-1));
+    if (j<127)  n.emplace_back(pair<int,int>(i,j+1));
+    return n;
+};
+
+size_t day14_find_next_occupied(const vector<day14_node>& g) {
+    for (size_t i=0; i<g.size(); i++) {
+        if ((g[i].occupied) && !(g[i].visited)) return i;
+    }
+    return g.size();
+}
+
+void day14_generate_bitmap(vector<day14_node>& g, size_t groups) {
+    const size_t tile_size = 4;
+    bitmap_image img(tile_size*128,tile_size*128);
+    vector<size_t> group_counts;
+    group_counts.resize(groups);
+    fill(group_counts.begin(),group_counts.end(),0);
+    for (day14_node n : g) {
+        if (n.occupied) {
+            group_counts[n.group]++;
+        }
+    }
+    vector<size_t> colours;
+    colours.resize(groups);
+    for (size_t i=0; i<groups; i++) {
+        if (group_counts[i]==1) {
+            colours[i]=colourPalette[0];
+        } else {
+            colours[i]=colourPalette[i%63+1];
+        }
+    }
+    // Fill image with white
+    img.set_all_channels(255,255,255);
+    for (day14_node n : g) {
+        uint8_t red=255,green=255,blue=255;
+        if (n.occupied) {
+            size_t colour = colours[n.group];
+            red =   uint8_t(colour >> 16);
+            green = uint8_t(colour >> 8);
+            blue =  uint8_t(colour);
+        }
+        for (size_t tx = 0; tx < tile_size; tx++) {
+            for (size_t ty = 0; ty < tile_size; ty++) {
+                img.set_pixel(tile_size*n.coord.first+tx, tile_size*n.coord.second+ty, red, green, blue);
+            }
+        }
+    }
+    img.save_image("day14.bmp");
+}
+
+void day14_mark_group(vector<day14_node>& g, size_t start_idx, size_t group_tag=0) {
+    g[start_idx].visited = true;
+    g[start_idx].group = group_tag;
+    vector<pair<int,int>> n = day14_get_neighbours(g[start_idx].coord);
+    for (const pair<int,int>& c : n) {
+        size_t i = (size_t)(c.first*128+c.second);
+        if (i >= g.size()) {
+            cout << "ERROR!\n";
+        }
+        if ((g[i].occupied) && !(g[i].visited)) {
+            day14_mark_group(g, i, group_tag);
+        }
+    }
+}
+
+size_t day14_a(string s, bool part_two, bool generate_bitmap) {
+    vector<string> hashes, bin_hashes;
+    hashes.resize(128);
+    bin_hashes.resize(128);
+    for (size_t i=0; i<128; i++) {
+        string hash_input = s + "-" + to_string(i);
+        hashes[i] = knot_hash(hash_input);
+        bin_hashes[i] = hex_string_to_binary(hashes[i]);
+    }
+    vector<vector<bool>> grid;
+    vector<bool> row;
+    size_t count=0;
+    for (const string &bin_hash : bin_hashes) {
+        row.resize(0);
+        for (char c : bin_hash) {
+            if (c == '1') {
+                row.push_back(true);
+                count++;
+            } else {
+                row.push_back(false);
+            }
+        }
+        if (row.size() == 128) {
+            grid.push_back(row);
+        } else {
+            cout << "Error in hashes!\n";
+        }
+    }
+    if (!part_two) return count;
+    // We need to traverse the grid and mark all occupied blocks visited
+    vector<day14_node> g;
+    day14_node n;
+    n.visited = false;
+    for (size_t i=0; i<128; i++) {
+        for (size_t j=0; j<128; j++) {
+            n.coord = pair<int,int>(i, j);
+            n.occupied = grid[i][j];
+            g.push_back(n);
+        }
+    }
+    size_t groups = 0;
+    while (true) {
+        size_t target = day14_find_next_occupied(g);
+        //cout << "Target: " << target << endl;
+        if (target == g.size()) {
+            // Finished, no more unmarked group
+            break;
+        }
+        day14_mark_group(g, target, groups);
+        groups++;
+    }
+    if (generate_bitmap) {
+        day14_generate_bitmap(g, groups);
+    }
+    return groups;
 }
