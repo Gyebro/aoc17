@@ -1030,7 +1030,6 @@ size_t day14_find_next_occupied(const vector<day14_node>& g) {
 
 void day14_generate_bitmap(vector<day14_node>& g, size_t groups) {
     const size_t tile_size = 4;
-    bitmap_image img(tile_size*128,tile_size*128);
     vector<size_t> group_counts;
     group_counts.resize(groups);
     fill(group_counts.begin(),group_counts.end(),0);
@@ -1049,10 +1048,13 @@ void day14_generate_bitmap(vector<day14_node>& g, size_t groups) {
         }
     }
     // Fill image with white
+    bitmap_image img(tile_size*128,tile_size*128);
     img.set_all_channels(255,255,255);
+    size_t occupied_count = 0;
     for (day14_node n : g) {
         uint8_t red=255,green=255,blue=255;
         if (n.occupied) {
+            occupied_count++;
             size_t colour = colours[n.group];
             red =   uint8_t(colour >> 16);
             green = uint8_t(colour >> 8);
@@ -1064,7 +1066,39 @@ void day14_generate_bitmap(vector<day14_node>& g, size_t groups) {
             }
         }
     }
+    cout << "Occupied " << occupied_count << " of " << 128*128 << " (" << double(occupied_count)/163.84 << "%)\n";
     img.save_image("day14.bmp");
+    // Now generate the de-fragmented version
+    vector<pair<size_t,size_t>> group_count_colour;
+    for (size_t i=0; i<groups; i++) {
+        group_count_colour.push_back(pair<size_t,size_t>(group_counts[i], colours[i]));
+    }
+    sort(group_count_colour.begin(), group_count_colour.end(), [](pair<size_t,size_t> a, pair<size_t,size_t> b) {
+        return a.first > b.first;
+    });
+    size_t pix = 0;
+    bitmap_image img_defrag(tile_size*128,tile_size*128);
+    img_defrag.set_all_channels(255,255,255);
+    for (pair<size_t,size_t> gc : group_count_colour) {
+        //cout << "Group size: " << gc.first << endl;
+        uint8_t red, green, blue;
+        size_t colour = gc.second;
+        red =   uint8_t(colour >> 16);
+        green = uint8_t(colour >> 8);
+        blue =  uint8_t(colour);
+        // Set the next group to the same colour
+        for (size_t i=pix; i<pix+gc.first; i++) {
+            size_t col = i/128;
+            size_t row = i%128;
+            for (size_t tx = 0; tx < tile_size; tx++) {
+                for (size_t ty = 0; ty < tile_size; ty++) {
+                    img_defrag.set_pixel(tile_size*row+tx, tile_size*col+ty, red, green, blue);
+                }
+            }
+        }
+        pix += gc.first;
+    }
+    img_defrag.save_image("day14_defrag.bmp");
 }
 
 void day14_mark_group(vector<day14_node>& g, size_t start_idx, size_t group_tag=0) {
