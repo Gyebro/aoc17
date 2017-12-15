@@ -3,7 +3,6 @@
 #include "days.h"
 
 #ifndef TODAY_ONLY
-#endif //TODAY_ONLY
 
 int day01_a(string s) {
     int sum = 0;
@@ -1171,4 +1170,63 @@ size_t day14_a(string s, bool part_two, bool generate_bitmap) {
         day14_generate_bitmap(g, groups);
     }
     return groups;
+}
+
+#endif //TODAY_ONLY
+
+size_t day15_a(string s, bool part_two){
+    vector<string> lines = split(s, '\n');
+    const size_t start_A = stoul(split(lines[0], ' ').back());
+    const size_t start_B = stoul(split(lines[1], ' ').back());
+    cout << "Starting values for generators " << start_A << ", " << start_B << endl;
+    const size_t factor_A = 16807;
+    const size_t factor_B = 48271;
+    const size_t div = 2147483647;
+    const size_t samples = 40000000;
+    size_t match=0;
+    size_t val_A=start_A, val_B=start_B;
+    uint16_t low_A, low_B;
+    WinClock c; c.start();
+    for (size_t i=0; i<samples; i++) {
+        val_A = (val_A*factor_A)%div;
+        val_B = (val_B*factor_B)%div;
+        // Compare
+        low_A = (uint16_t)val_A;
+        low_B = (uint16_t)val_B;
+        if (low_A == low_B) match++;
+    }
+    c.stop();
+    if (!part_two) {
+        return match;
+    } else {
+        cout << "Part One matches: " << match << endl;
+        cout << "Computation time: " << c.read_millisec() << " [ms]\n";
+    }
+    // Reset generators
+    val_A=start_A, val_B=start_B;
+    match=0;
+    const size_t div_A = 4;
+    const size_t div_B = 8;
+    bool find_next_A, find_next_B;
+    const size_t samples_b = 5000000;
+    c.start();
+    for (size_t i=0; i<samples_b; i++) {
+        find_next_A = true; find_next_B = true;
+        while (find_next_A) {
+            val_A = (val_A*factor_A)%div;
+            if (val_A % div_A == 0) find_next_A = false;
+        }
+        while (find_next_B) {
+            val_B = (val_B*factor_B)%div;
+            if (val_B % div_B == 0) find_next_B = false;
+        }
+        // Compare
+        low_A = (uint16_t)val_A;
+        low_B = (uint16_t)val_B;
+        if (low_A == low_B) match++;
+    }
+    c.stop();
+    cout << "Part Two matches: " << match << endl;
+    cout << "Computation time: " << c.read_millisec() << " [ms]\n";
+    return match;
 }
