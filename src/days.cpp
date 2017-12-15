@@ -1185,15 +1185,11 @@ size_t day15_a(string s, bool part_two){
     const size_t samples = 40000000;
     size_t match=0;
     size_t val_A=start_A, val_B=start_B;
-    uint16_t low_A, low_B;
     WinClock c; c.start();
     for (size_t i=0; i<samples; i++) {
-        val_A = (val_A*factor_A)%div;
-        val_B = (val_B*factor_B)%div;
-        // Compare
-        low_A = (uint16_t)val_A;
-        low_B = (uint16_t)val_B;
-        if (low_A == low_B) match++;
+        val_A = (val_A*factor_A)%div; // Update A
+        val_B = (val_B*factor_B)%div; // Update B
+        if ((uint16_t)val_A == (uint16_t)val_B) match++;  // Compare
     }
     c.stop();
     if (!part_two) {
@@ -1207,23 +1203,12 @@ size_t day15_a(string s, bool part_two){
     match=0;
     const size_t div_A = 4;
     const size_t div_B = 8;
-    bool find_next_A, find_next_B;
     const size_t samples_b = 5000000;
     c.start();
     for (size_t i=0; i<samples_b; i++) {
-        find_next_A = true; find_next_B = true;
-        while (find_next_A) {
-            val_A = (val_A*factor_A)%div;
-            if (val_A % div_A == 0) find_next_A = false;
-        }
-        while (find_next_B) {
-            val_B = (val_B*factor_B)%div;
-            if (val_B % div_B == 0) find_next_B = false;
-        }
-        // Compare
-        low_A = (uint16_t)val_A;
-        low_B = (uint16_t)val_B;
-        if (low_A == low_B) match++;
+        do { val_A = (val_A*factor_A)%div; } while (val_A % div_A != 0);
+        do { val_B = (val_B*factor_B)%div; } while (val_B % div_B != 0);
+        if ((uint16_t)val_A == (uint16_t)val_B) match++;  // Compare
     }
     c.stop();
     cout << "Part Two matches: " << match << endl;
