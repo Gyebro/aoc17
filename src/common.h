@@ -48,10 +48,15 @@ size_t max_idx(const vector<T> v) {
 }
 
 template<typename T>
-size_t min_idx(const vector<T> v) {
+size_t min_idx(const vector<T>& v) {
     auto result = std::min_element(v.begin(), v.end());
     auto index = std::distance(v.begin(), result);
     return index;
+}
+
+template<class T>
+long long int find(const vector<T>& v, const T e) {
+    return distance(v.begin(), find(v.begin(), v.end(), e));
 }
 
 string trim_spaces(const string s);

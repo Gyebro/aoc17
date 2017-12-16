@@ -13,7 +13,8 @@
 //#define DAY12
 //#define DAY13
 //#define DAY14
-#define DAY15
+//#define DAY15
+#define DAY16
 
 #include "macros.h"
 
@@ -115,8 +116,15 @@ int main() {
 #endif
 
 #ifdef DAY15
-    cout << "Day 14: Part One and Two\n";
+    cout << "Day 15: Part One and Two\n";
     cout << day15_a(file_to_string("day15.txt"), true) << endl;
+#endif
+
+#ifdef DAY16
+    cout << "Day 16: Part One\n";
+    cout << day16_a(file_to_string("day16.txt")) << endl;
+    cout << "Day 16: Part Two\n";
+    cout << day16_a(file_to_string("day16.txt"), true) << endl;
 #endif
 
 #endif // ifndef RUN_BENCHMARKS

@@ -45,4 +45,6 @@ size_t day14_a(string s, bool part_two = false, bool generate_bitmap = false);
 
 size_t day15_a(string s, bool part_two = false);
 
+string day16_a(string s, bool part_two = false);
+
 #endif //AOC17_DAYS_H

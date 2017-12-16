@@ -1172,8 +1172,6 @@ size_t day14_a(string s, bool part_two, bool generate_bitmap) {
     return groups;
 }
 
-#endif //TODAY_ONLY
-
 size_t day15_a(string s, bool part_two){
     vector<string> lines = split(s, '\n');
     const size_t start_A = stoul(split(lines[0], ' ').back());
@@ -1214,4 +1212,113 @@ size_t day15_a(string s, bool part_two){
     cout << "Part Two matches: " << match << endl;
     cout << "Computation time: " << c.read_millisec() << " [ms]\n";
     return match;
+}
+
+#endif //TODAY_ONLY
+
+enum class day16_move_type {
+    spin,
+    exchange,
+    partner
+};
+
+struct day16_move {
+    day16_move_type t;
+    char A, B;
+};
+
+void day16_dance(const vector<day16_move>& moves, vector<char>& dancers) {
+    size_t loc_A, loc_B;
+    for (const day16_move &move : moves) {
+        switch (move.t) {
+            case day16_move_type::spin:
+                // Rotate dancers with amount
+                rotate(dancers.begin(), dancers.begin() + 16 - (move.A) % 16, dancers.end());
+                break;
+            case day16_move_type::exchange:
+                // Exchange programs at loc A and B
+                swap(dancers[move.A], dancers[move.B]);
+                break;
+            case day16_move_type::partner:
+                // Exchange programs named A and B
+                loc_A = (size_t) find(dancers, move.A);
+                loc_B = (size_t) find(dancers, move.B);
+                swap(dancers[loc_A], dancers[loc_B]);
+                break;
+        }
+    }
+}
+
+string day16_a(string s, bool part_two) {
+    vector<string> moves_str = split(s,',');
+    vector<string> parts;
+    vector<day16_move> moves;
+    for (string move : moves_str) {
+        char type = move[0];
+        day16_move m;
+        switch (type) {
+            case 's': // sX, example s18
+                m.t = day16_move_type::spin;
+                m.A = (char)stoul(move.substr(1));
+                m.B = 0;
+                break;
+            case 'x':
+                m.t = day16_move_type::exchange;
+                parts = split(move.substr(1), '/');
+                m.A = (char)stoul(parts[0]);
+                m.B = (char)stoul(parts[1]);
+                break;
+            case 'p':
+                m.t = day16_move_type::partner;
+                parts = split(move.substr(1), '/');
+                m.A = parts[0][0];
+                m.B = parts[1][0];
+                break;
+            default:
+                break;
+        }
+        moves.push_back(m);
+    }
+    // Initialize dancers
+    vector<char> dancers;
+    char c = 'a';
+    for (size_t i=0; i<16; i++) dancers.push_back(c++);
+    // Start the dance
+    bool period_found = false;
+    size_t period;
+    size_t dance_count=0;
+    size_t dances=0;
+    while (!period_found) {
+        dances++;
+        // Do a dance
+        day16_dance(moves, dancers);
+        bool equal = true;
+        for (size_t i=0; i<16; i++) {
+            if (dancers[i] != 'a'+i) {
+                equal = false;
+                break;
+            }
+        }
+        if (equal) {
+            period = dances;
+            period_found = true;
+            dance_count = 1000000000%period;
+            cout << "Period: " << period << ", dances to do: " << dance_count << endl;
+        }
+        // Escape loop for part one
+        if (!part_two) period_found = true;
+    }
+    string result;
+    if (!part_two) {
+        result = "";
+        for (char p : dancers) result+=p;
+        return result;
+    }
+    // Dance further
+    for (size_t i=0; i<dance_count; i++) {
+        day16_dance(moves, dancers);
+    }
+    result = "";
+    for (char p : dancers) result+=p;
+    return result;
 }
