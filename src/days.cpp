@@ -1319,7 +1319,7 @@ string day16_a(string s, bool part_two) {
     result = "";
     for (char p : dancers) result+=p;
     return result;
-}1
+}
 
 #endif //TODAY_ONLY
 
@@ -1333,12 +1333,20 @@ size_t day17_a(const size_t s, bool part_two) {
         }
         return b.get(b.find(2017).next).value;
     } else {
-        CircularBuffer<size_t> b(0, 50000010);
+        // This takes around 9 minutes
+        /*CircularBuffer<size_t> b(0, 50000010);
         size_t idx = 0;
         for (size_t i=1; i<=50000000; i++) {
             idx = b.insert_behind_idx(idx,i,s);
-            //if (i%100000) cout << double(i)/50000000.0 << endl;
         }
-        return b.get(b.find(0).next).value;
+        return b.get(b.find(0).next).value;*/
+        // Do the math instead
+        size_t p = 0;
+        size_t next_of_zero = 0;
+        for (size_t i=0; i<=50000000; i++) {
+            if (p == 0) next_of_zero = i;
+            p = (p+1+s%(i+1))%(i+1);
+        }
+        return next_of_zero;
     }
 }
