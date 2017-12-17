@@ -1183,18 +1183,13 @@ size_t day15_a(string s, bool part_two){
     const size_t samples = 40000000;
     size_t match=0;
     size_t val_A=start_A, val_B=start_B;
-    WinClock c; c.start();
-    for (size_t i=0; i<samples; i++) {
-        val_A = (val_A*factor_A)%div; // Update A
-        val_B = (val_B*factor_B)%div; // Update B
-        if ((uint16_t)val_A == (uint16_t)val_B) match++;  // Compare
-    }
-    c.stop();
     if (!part_two) {
+        for (size_t i = 0; i < samples; i++) {
+            val_A = (val_A * factor_A) % div; // Update A
+            val_B = (val_B * factor_B) % div; // Update B
+            if ((uint16_t) val_A == (uint16_t) val_B) match++;  // Compare
+        }
         return match;
-    } else {
-        cout << "Part One matches: " << match << endl;
-        cout << "Computation time: " << c.read_millisec() << " [ms]\n";
     }
     // Reset generators
     val_A=start_A, val_B=start_B;
@@ -1202,15 +1197,11 @@ size_t day15_a(string s, bool part_two){
     const size_t div_A = 4;
     const size_t div_B = 8;
     const size_t samples_b = 5000000;
-    c.start();
     for (size_t i=0; i<samples_b; i++) {
         do { val_A = (val_A*factor_A)%div; } while (val_A % div_A != 0);
         do { val_B = (val_B*factor_B)%div; } while (val_B % div_B != 0);
         if ((uint16_t)val_A == (uint16_t)val_B) match++;  // Compare
     }
-    c.stop();
-    cout << "Part Two matches: " << match << endl;
-    cout << "Computation time: " << c.read_millisec() << " [ms]\n";
     return match;
 }
 

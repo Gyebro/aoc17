@@ -148,7 +148,7 @@ int main() {
     string day01_input = file_to_string("day01.txt");
     tasks.emplace_back("Day 01 Part One");
     tasks.emplace_back("Day 01 Part Two");
-    Clock c;
+    WinClock c;
     cout << day01_a(day01_input) << endl;
     c.stop(); time_ms.push_back(c.read_millisec());
     c.start();
@@ -221,12 +221,134 @@ int main() {
     day07_a(day07_input, true);
     c.stop(); time_ms.push_back(c.read_millisec());
 
+    cout << "Day 08\n";
+    string day08_input = file_to_string("day08.txt");
+    tasks.emplace_back("Day 08 Part One");
+    tasks.emplace_back("Day 08 Part Two");
+    c.start();
+    day08_a(day08_input, false);
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    day08_a(day08_input, true);
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 09\n";
+    string day09_input = file_to_string("day09.txt");
+    tasks.emplace_back("Day 09 Part One");
+    tasks.emplace_back("Day 09 Part Two");
+    c.start();
+    cout << day09_a(day09_input, false) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day09_a(day09_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 10\n";
+    string day10_input = file_to_string("day10.txt");
+    tasks.emplace_back("Day 10 Part One");
+    tasks.emplace_back("Day 10 Part Two");
+    c.start();
+    cout << day10_a(day10_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day10_b(day10_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 11\n";
+    string day11_input = file_to_string("day11.txt");
+    tasks.emplace_back("Day 11 Part One");
+    tasks.emplace_back("Day 11 Part Two");
+    c.start();
+    cout << day11_a(day11_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day11_a(day11_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 12\n";
+    string day12_input = file_to_string("day12.txt");
+    tasks.emplace_back("Day 12 Part One");
+    tasks.emplace_back("Day 12 Part Two");
+    c.start();
+    cout << day12_a(day12_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day12_a(day12_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 13\n";
+    string day13_input = file_to_string("day13.txt");
+    tasks.emplace_back("Day 13 Part One");
+    tasks.emplace_back("Day 13 Part Two");
+    c.start();
+    cout << day13_a(day13_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day13_a(day13_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 14\n";
+    string day14_input = "hwlqcszp";
+    tasks.emplace_back("Day 14 Part One");
+    tasks.emplace_back("Day 14 Part Two");
+    c.start();
+    cout << day14_a(day14_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day14_a(day14_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 15\n";
+    string day15_input = file_to_string("day15.txt");
+    tasks.emplace_back("Day 15 Part One");
+    tasks.emplace_back("Day 15 Part Two");
+    c.start();
+    cout << day15_a(day15_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day15_a(day15_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 16\n";
+    string day16_input = file_to_string("day16.txt");
+    tasks.emplace_back("Day 16 Part One");
+    tasks.emplace_back("Day 16 Part Two");
+    c.start();
+    cout << day16_a(day16_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day16_a(day16_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "Day 17\n";
+    const size_t day17_input = 376;
+    tasks.emplace_back("Day 17 Part One");
+    tasks.emplace_back("Day 17 Part Two");
+    c.start();
+    cout << day17_a(day17_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day17_a(day17_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
     cout << endl << endl;
     cout << "Task           \t\tt [ms]\n";
     cout << "---------------\t\t------\n";
     for (size_t i=0; i<tasks.size(); i++) {
         cout << tasks[i] << "\t\t" << time_ms[i] << '\n';
     }
+    flush(cout);
+
+    ofstream out("README.md");
+    out << "# aoc17\n";
+    out << "Advent of Code 2017 in C++\n";
+    out << "## Computation times\n";
+    out << "Day | Part One [ms] | Part Two [ms]\n";
+    out << "--- | --- | ---\n";
+    for (size_t i=0; i<tasks.size(); i+=2) {
+        out << tasks[i].substr(0,6) << " | " << time_ms[i] << " | " << time_ms[i+1] << '\n';
+    }
+    out.close();
 #endif
     
     return 0;
