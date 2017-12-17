@@ -47,4 +47,6 @@ size_t day15_a(string s, bool part_two = false);
 
 string day16_a(string s, bool part_two = false);
 
+size_t day17_a(const size_t s, bool part_two = false);
+
 #endif //AOC17_DAYS_H

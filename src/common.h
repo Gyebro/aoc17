@@ -113,4 +113,108 @@ const size_t colourPalette[] = {0x000000, 0x00FF00, 0x0000FF, 0xFF0000, 0x01FFFE
                              0xFFE502, 0x620E00, 0x008F9C, 0x98FF52, 0x7544B1, 0xB500FF, 0x00FF78, 0xFF6E41,
                              0x005F39, 0x6B6882, 0x5FAD4E, 0xA75740, 0xA5FFD2, 0xFFB167, 0x009BFF, 0xE85EBE};
 
+
+template <class T>
+class CircularBufferElement {
+public:
+    T value;
+    size_t prev, next;
+};
+
+template <class T>
+class CircularBuffer {
+private:
+    vector<CircularBufferElement<T>> e;
+public:
+    explicit CircularBuffer(const T& first, const size_t reserve = 0);
+    const CircularBufferElement<T>& find(const T& value) const;
+    CircularBufferElement<T>& find(const T& value);
+    size_t find_idx(const T& value) const;
+    const CircularBufferElement<T>& get(size_t idx) const;
+    void insert_behind(const T& value, const T& new_elem, size_t skip = 0);
+    size_t insert_behind_idx(size_t target, const T &new_elem, size_t skip = 0);
+
+};
+
+
+template<class T>
+CircularBuffer<T>::CircularBuffer(const T &first, const size_t reserve) {
+    CircularBufferElement<T> new_elem;
+    new_elem.value = first;
+    new_elem.prev = 0;
+    new_elem.next = 0;
+    e.resize(1);
+    if (reserve > 0) {
+        e.reserve(reserve);
+    }
+    e.push_back(new_elem);
+}
+
+template<class T>
+const CircularBufferElement<T> &CircularBuffer<T>::find(const T &value) const {
+    for (const CircularBufferElement<T>& elem : e) {
+        if (elem.value == value) {
+            return elem;
+        }
+    }
+    return e[0];
+}
+
+template<class T>
+CircularBufferElement<T> &CircularBuffer<T>::find(const T &value) {
+    for (CircularBufferElement<T>& elem : e) {
+        if (elem.value == value) {
+            return elem;
+        }
+    }
+    return e[0];
+}
+
+template<class T>
+size_t CircularBuffer<T>::find_idx(const T &value) const {
+    for (size_t i=0; i<e.size(); i++) {
+        if (e[i].value == value) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+template<class T>
+const CircularBufferElement<T> &CircularBuffer<T>::get(size_t idx) const {
+    return e[idx];
+}
+
+template<class T>
+void CircularBuffer<T>::insert_behind(const T &value, const T &new_elem, size_t skip) {
+    CircularBufferElement<T> cbe;
+    cbe.value = new_elem;
+    size_t target = find_idx(value);
+    for (size_t i=0; i<skip; i++) {
+        target = e[target].next;
+    }
+    size_t new_idx = e.size();
+    size_t old_next = e[target].next;
+    e[target].next = new_idx;
+    cbe.next = old_next;
+    cbe.prev = target;
+    e.push_back(cbe);
+}
+
+template<class T>
+size_t CircularBuffer<T>::insert_behind_idx(size_t target, const T &new_elem, size_t skip) {
+    CircularBufferElement<T> cbe;
+    cbe.value = new_elem;
+    size_t new_idx = e.size();
+    for (size_t i=0; i<skip; i++) {
+        target = e[target].next;
+    }
+    size_t old_next = e[target].next;
+    e[target].next = new_idx;
+    cbe.next = old_next;
+    cbe.prev = target;
+    e.push_back(cbe);
+    return new_idx;
+}
+
 #endif //AOC17_COMMON_H

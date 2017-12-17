@@ -1214,8 +1214,6 @@ size_t day15_a(string s, bool part_two){
     return match;
 }
 
-#endif //TODAY_ONLY
-
 enum class day16_move_type {
     spin,
     exchange,
@@ -1321,4 +1319,26 @@ string day16_a(string s, bool part_two) {
     result = "";
     for (char p : dancers) result+=p;
     return result;
+}1
+
+#endif //TODAY_ONLY
+
+size_t day17_a(const size_t s, bool part_two) {
+    if (!part_two) {
+        CircularBuffer<size_t> b(0);
+        size_t idx = 0;
+        for (size_t i=1; i<=2017; i++) {
+            //b.insert_behind(i-1,i,s);
+            idx = b.insert_behind_idx(idx, i, s);
+        }
+        return b.get(b.find(2017).next).value;
+    } else {
+        CircularBuffer<size_t> b(0, 50000010);
+        size_t idx = 0;
+        for (size_t i=1; i<=50000000; i++) {
+            idx = b.insert_behind_idx(idx,i,s);
+            //if (i%100000) cout << double(i)/50000000.0 << endl;
+        }
+        return b.get(b.find(0).next).value;
+    }
 }
