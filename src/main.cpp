@@ -15,7 +15,8 @@
 //#define DAY14
 //#define DAY15
 //#define DAY16
-#define DAY17
+//#define DAY17
+#define DAY18
 
 #include "macros.h"
 
@@ -130,12 +131,17 @@ int main() {
 
 #ifdef DAY17
     cout << "Day 17: Part One\n";
-    Clock c; c.start();
     const size_t day17_input = 376;
     cout << day17_a(day17_input) << endl;
     cout << "Day 17: Part Two\n";
     cout << day17_a(day17_input, true) << endl;
-    c.stop(); cout << "Time: " << c.read_sec() << endl;
+#endif
+
+#ifdef DAY18
+    cout << "Day 18: Part One\n";
+    cout << day18_a(file_to_string("day18.txt")) << endl;
+    cout << "Day 18: Part Two\n";
+    cout << day18_a(file_to_string("day18.txt"), true) << endl;
 #endif
 
 #endif // ifndef RUN_BENCHMARKS

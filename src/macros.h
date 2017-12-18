@@ -9,7 +9,7 @@
 #define TODAY_ONLY
 
 // For running benchmarks
-#define RUN_BENCHMARKS
+//#define RUN_BENCHMARKS
 
 #ifdef RUN_BENCHMARKS
     #undef TODAY_ONLY

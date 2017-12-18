@@ -1,4 +1,6 @@
 #include <c++/bitset>
+#include <c++/queue>
+#include <c++/list>
 #include "macros.h"
 #include "days.h"
 
@@ -1312,8 +1314,6 @@ string day16_a(string s, bool part_two) {
     return result;
 }
 
-#endif //TODAY_ONLY
-
 size_t day17_a(const size_t s, bool part_two) {
     if (!part_two) {
         CircularBuffer<size_t> b(0);
@@ -1340,4 +1340,273 @@ size_t day17_a(const size_t s, bool part_two) {
         }
         return next_of_zero;
     }
+}
+
+#endif //TODAY_ONLY
+
+enum class day18_type {
+    snd,
+    set,
+    add,
+    mul,
+    mod,
+    rcv,
+    jgz
+};
+
+enum class day18_arg_type {
+    reg,
+    val
+};
+
+struct day18_instruction {
+    day18_type type;
+    day18_arg_type type_a;
+    long long int reg_a;
+    day18_arg_type type_b;
+    long long int reg_b;
+};
+
+class day18_program {
+private:
+    vector<day18_instruction> program;
+    vector<char> reg_names;
+    vector<long long int> reg_vals;
+    size_t iptr;
+public:
+    list<long long int> out;
+    long long int input;
+    bool terminated;
+    bool waiting;
+    day18_program(const string s, const long long int pid=0) {
+        terminated = false;
+        waiting = false;
+        vector<string> parts;
+        reg_names.resize(0);
+        out.resize(0);
+        // First gather register names
+        for (const string& line : split(s,'\n')) {
+            parts = split(line, ' ');
+            char regname = parts[1][0];
+            try {
+                stoi(parts[1]);
+            } catch (...) {
+                if (find(reg_names, regname) >= reg_names.size()) {
+                    reg_names.push_back(regname);
+                }
+            }
+        }
+        //cout << "Registers: " << reg_names.size() << endl;
+        //for (char r : reg_names) cout << r << " ";
+        //cout << endl;
+        // Now parse instructions
+        day18_instruction i;
+        for (const string& line : split(s,'\n')) {
+            parts = split(line, ' ');
+            string itype = parts[0];
+            int reg_a, reg_b;
+            day18_arg_type type_a, type_b;
+            try {
+                reg_a = stoi(parts[1]);
+                type_a = day18_arg_type::val;
+            } catch (...) {
+                reg_a = (int)parts[1][0];
+                type_a = day18_arg_type::reg;
+            }
+            if (parts.size() > 2) {
+                try {
+                    reg_b = stoi(parts[2]);
+                    type_b = day18_arg_type::val;
+                } catch (...) {
+                    reg_b = (int)parts[2][0];
+                    type_b = day18_arg_type::reg;
+                }
+            }
+            if        (itype == "snd") {
+                i.type = day18_type::snd;
+                i.reg_a = reg_a; i.type_a = type_a;
+            } else if (itype == "rcv") {
+                i.type = day18_type::rcv;
+                i.reg_a = reg_a; i.type_a = type_a;
+            } else if (itype == "set") {
+                i.type = day18_type::set;
+                i.reg_a = reg_a; i.type_a = type_a;
+                i.reg_b = reg_b; i.type_b = type_b;
+            } else if (itype == "add") {
+                i.type = day18_type::add;
+                i.reg_a = reg_a; i.type_a = type_a;
+                i.reg_b = reg_b; i.type_b = type_b;
+            } else if (itype == "mul") {
+                i.type = day18_type::mul;
+                i.reg_a = reg_a; i.type_a = type_a;
+                i.reg_b = reg_b; i.type_b = type_b;
+            } else if (itype == "mod") {
+                i.type = day18_type::mod;
+                i.reg_a = reg_a; i.type_a = type_a;
+                i.reg_b = reg_b; i.type_b = type_b;
+            }  else if (itype == "jgz") {
+                i.type = day18_type::jgz;
+                i.reg_a = reg_a; i.type_a = type_a;
+                i.reg_b = reg_b; i.type_b = type_b;
+            }
+            program.push_back(i);
+        }
+        // Initialize reg vals
+        for (char c : reg_names) reg_vals.push_back(0);
+        // Set value of reg p to pid
+        reg_vals[find(reg_names,'p')]=pid;
+        // Set iptr to 0
+        iptr = 0;
+    }
+    void run(bool part_two = false, bool received = false) {
+        bool running = true;
+        waiting = false;
+        long long int sent;
+        // Run the program
+        while (running) {
+            day18_instruction i = program[iptr];
+            //for (int v : reg_vals) cout << v << " ";
+            //cout << endl;
+            switch (i.type) {
+                case day18_type::snd:
+                    if (i.type_a == day18_arg_type::val) { sent = i.reg_a; }
+                    else { sent = reg_vals[find(reg_names, (char)i.reg_a)]; }
+                    out.push_back(sent);
+                    iptr++;
+                    break;
+                case day18_type::rcv:
+                    if (!part_two) {
+                        if (i.type_a == day18_arg_type::val) {
+                            if (i.reg_a != 0) waiting = true;
+                        }
+                        else {
+                            if (reg_vals[find(reg_names, (char)i.reg_a)] != 0) waiting = true;
+                        }
+                        iptr++;
+                    } else {
+                        // Part two: wait always for the incoming value
+                        if (received) {
+                            // Store the received value
+                            reg_vals[find(reg_names, (char)i.reg_a)] = input;
+                            // Clear received flag
+                            received = false;
+                            iptr++;
+                        } else {
+                            waiting = true;
+                        }
+                    }
+                    break;
+                case day18_type::set:
+                    if (i.type_b == day18_arg_type::reg) {
+                        reg_vals[find(reg_names, (char)i.reg_a)] = reg_vals[find(reg_names, (char)i.reg_b)];
+                    } else {
+                        reg_vals[find(reg_names, (char)i.reg_a)] = i.reg_b;
+                    }
+                    iptr++;
+                    break;
+                case day18_type::add:
+                    if (i.type_b == day18_arg_type::reg) {
+                        reg_vals[find(reg_names, (char)i.reg_a)] += reg_vals[find(reg_names, (char)i.reg_b)];
+                    } else {
+                        reg_vals[find(reg_names, (char)i.reg_a)] += i.reg_b;
+                    }
+                    iptr++;
+                    break;
+                case day18_type::mul:
+                    if (i.type_b == day18_arg_type::reg) {
+                        reg_vals[find(reg_names, (char)i.reg_a)] *= reg_vals[find(reg_names, (char)i.reg_b)];
+                    } else {
+                        reg_vals[find(reg_names, (char)i.reg_a)] *= i.reg_b;
+                    }
+                    iptr++;
+                    break;
+                case day18_type::mod:
+                    if (i.type_b == day18_arg_type::reg) {
+                        reg_vals[find(reg_names, (char)i.reg_a)] = reg_vals[find(reg_names, (char)i.reg_a)] %
+                                                                   reg_vals[find(reg_names, (char)i.reg_b)];
+                    } else {
+                        reg_vals[find(reg_names, (char)i.reg_a)] = reg_vals[find(reg_names, (char)i.reg_a)] % i.reg_b;
+                    }
+                    iptr++;
+                    break;
+                case day18_type::jgz:
+                {
+                    bool jump;
+                    if (i.type_a == day18_arg_type::val) {
+                        jump = (i.reg_a > 0);
+                    } else {
+                        jump = (reg_vals[find(reg_names, (char)i.reg_a)] > 0);
+                    }
+                    if (jump) {
+                        if (i.type_b == day18_arg_type::val) {
+                            iptr += i.reg_b;
+                        } else {
+                            iptr += reg_vals[find(reg_names, (char)i.reg_b)];
+                        }
+                    } else {
+                        iptr++;
+                    }
+                }
+                    break;
+            }
+            if ((iptr < 0) || (iptr >= program.size())) {
+                running = false;
+                terminated = true;
+            }
+            if (waiting) {
+                running = false;
+            }
+        }
+        return;
+    }
+};
+
+long long int day18_a(string s, bool part_two) {
+    if (!part_two) {
+        day18_program p(s);
+        p.run();
+        return p.out.back();
+    } else {
+        day18_program p0(s,0);
+        day18_program p1(s,1);
+        p0.run(part_two);
+        p1.run(part_two);
+        size_t p1_sent_value_to_p0 = 0;
+        while (true) {
+            if (!p0.terminated) {
+                if(!p1.out.empty()) {
+                    p0.input = p1.out.front();
+                    p1.out.pop_front();
+                    //cout << "Running p0 with input from p1: " << p0.input << endl;
+                    p0.run(part_two, true);
+                    p1_sent_value_to_p0++;
+                } else {
+                    // Both queues are empty
+                    if(p0.out.empty()) break;
+                    //cout << "p0 is waiting for input from p1\n";
+                }
+            } else {
+                // p0 wont send more to p1, p1 cannot continue
+                if(p0.out.empty()) break;
+            }
+            if (!p1.terminated) {
+                if(!p0.out.empty()) {
+                    p1.input = p0.out.front();
+                    p0.out.pop_front();
+                    //cout << "Running p1 with input from p0: " << p1.input << endl;
+                    p1.run(part_two, true);
+
+                } else {
+                    // Both queues are empty
+                    if(p1.out.empty()) break;
+                    //cout << "p0 is waiting for input from p1\n";
+                }
+            } else {
+                // p1 wont send more to p0, p0 cannot continue
+                if(p1.out.empty()) break;
+            }
+        }
+        return p1_sent_value_to_p0;
+    }
+    return 0;
 }
