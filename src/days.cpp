@@ -366,7 +366,7 @@ void day07_a(string s, bool part_two, bool verbose) {
             items = split(parts[0], ' ');
             n.name = items[0];
             n.value = stoi(items[1].substr(1, items[1].size()-2));
-            vector<string> ch;
+            vector<string> ch; ch.resize(0);
             for (const string& c : split(parts[1].substr(2, parts[1].size()-2), ',')) {
                 ch.push_back(trim_spaces(c));
             }
@@ -379,6 +379,7 @@ void day07_a(string s, bool part_two, bool verbose) {
             n.value = stoi(items[1].substr(1, items[1].size()-2));
             vector<string> ch; ch.resize(0);
             n.children = ch;
+            n.has_parent = false;
             g.push_back(n);
         }
         //cout << "Added node: name: " << n.name << ", val: " << n.value << ", ch count: " << n.children.size() << endl;
