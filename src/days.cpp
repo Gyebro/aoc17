@@ -936,14 +936,12 @@ size_t day12_a(string input, bool part_two) {
 
 
 size_t day13_a(string s, bool part_two) {
-    WinClock c; c.start();
     vector<size_t> depth, range;
     for (const string& line : split(s, '\n')) {
         vector<string> parts = split(line, ':');
         depth.push_back(stoul(parts[0]));
         range.push_back(stoul(parts[1]));
     }
-    c.stop(); cout << "Parsing data: " << c.read_millisec() << " [ms]\n";
     //cout << "Firewall has " << depth.size() << " layers\n";
     // Calculate which scanner catches our packet
     /**
@@ -957,7 +955,6 @@ size_t day13_a(string s, bool part_two) {
      *  caught = D == 2*(R-1)*k
      *  that is D%(2*R-2)==0
      */
-    c.start();
     size_t caught=0;
     size_t severity=0;
     for (size_t i=0; i<depth.size(); i++) {
@@ -970,9 +967,7 @@ size_t day13_a(string s, bool part_two) {
     if (!part_two) {
         return severity;
     } else {
-        c.stop();
         cout << "Severity: " << severity << endl;
-        cout << "Calculation time: " << c.read_millisec() << " [ms]\n";
     }
     // Part two: now add a delay so that our packet won't get caught at all
     /**
@@ -984,7 +979,6 @@ size_t day13_a(string s, bool part_two) {
      *  that is (d+T0)%(2*R-2)==0
      */
     // Brute force solution
-    c.start();
     size_t t0 = 0;
     while (true) {
         t0++;
@@ -997,11 +991,9 @@ size_t day13_a(string s, bool part_two) {
         }
         if (pass) break;
     }
-    c.stop();
     cout << "Lowest delay: " << t0 << endl;
-    cout << "Calculation time: " << c.read_millisec() << " [ms]\n";
     // Elegant solution
-    // Inverse Chinese Remainder Theorem
+    // TODO: Inverse Chinese Remainder Theorem
     return t0;
 }
 
@@ -1179,7 +1171,7 @@ size_t day15_a(string s, bool part_two){
     vector<string> lines = split(s, '\n');
     const size_t start_A = stoul(split(lines[0], ' ').back());
     const size_t start_B = stoul(split(lines[1], ' ').back());
-    cout << "Starting values for generators " << start_A << ", " << start_B << endl;
+    //cout << "Starting values for generators " << start_A << ", " << start_B << endl;
     const size_t factor_A = 16807;
     const size_t factor_B = 48271;
     const size_t div = 2147483647;
