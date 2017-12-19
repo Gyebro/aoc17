@@ -17,6 +17,7 @@
 //#define DAY16
 //#define DAY17
 //#define DAY18
+#define DAY19
 
 #include "macros.h"
 
@@ -146,7 +147,18 @@ int main() {
     cout << day18_a(file_to_string("day18.txt"), true) << endl;
 #endif
 
+#ifdef DAY19
+    cout << "Day 19: Part One\n";
+    cout << day19_a(file_to_string("day19.txt")) << endl;
+    cout << "Day 19: Part Two\n";
+    cout << day19_a(file_to_string("day19.txt"), true) << endl;
+#endif
+
 #endif // ifndef RUN_BENCHMARKS
+
+
+
+
 
 #ifdef RUN_BENCHMARKS
     vector<string> tasks;
@@ -330,6 +342,16 @@ int main() {
     c.stop(); time_ms.push_back(c.read_millisec());
     c.start();
     cout << day18_a(day18_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "\nDay 19\n";
+    string day19_input = file_to_string("day19.txt");
+    tasks.emplace_back("Day 19");
+    c.start();
+    cout << day19_a(day19_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day19_a(day19_input, true) << endl;
     c.stop(); time_ms.push_back(c.read_millisec());
 
 

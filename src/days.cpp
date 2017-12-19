@@ -1335,8 +1335,6 @@ size_t day17_a(const size_t s, bool part_two) {
     }
 }
 
-#endif //TODAY_ONLY
-
 enum class day18_type {
     snd,
     set,
@@ -1602,4 +1600,159 @@ long long int day18_a(string s, bool part_two) {
         return p1_sent_value_to_p0;
     }
     return 0;
+}
+
+#endif //TODAY_ONLY
+
+enum class day19_dir {
+    up, down, left, right
+};
+
+const day19_dir directions[] = {day19_dir::up, day19_dir::down, day19_dir::left, day19_dir::right};
+
+pair<size_t,size_t> day19_step(pair<size_t,size_t> next, const day19_dir d) {
+    switch (d) {
+        case day19_dir::down:
+            next.first++;
+            break;
+        case day19_dir::up:
+            next.first--;
+            break;
+        case day19_dir::left:
+            next.second--;
+            break;
+        case day19_dir::right:
+            next.second++;
+            break;
+    }
+    return next;
+};
+
+string day19_dir_label(const day19_dir d) {
+    switch (d) {
+        case day19_dir::down:
+            return "down";
+        case day19_dir::up:
+            return "up";
+        case day19_dir::left:
+            return "left";
+        case day19_dir::right:
+            return "right";
+    }
+}
+
+day19_dir day19_opposite(const day19_dir d) {
+    switch (d) {
+        case day19_dir::down:
+            return day19_dir::up;
+        case day19_dir::up:
+            return day19_dir::down;
+        case day19_dir::left:
+            return day19_dir::right;
+        case day19_dir::right:
+            return day19_dir::left;
+    }
+};
+
+bool day19_get(const vector<vector<char>> &map, pair<size_t,size_t> pos, char& c) {
+    size_t rows = map.size();
+    size_t cols = map[0].size();
+    if (pos.first >= rows || pos.second >= cols) return false;
+    c = map[pos.first][pos.second];
+    return true;
+}
+
+string day19_a(string s, bool part_two) {
+    vector<vector<char>> map;
+    size_t rows, cols;
+    for (string &line : split(s,'\n')) {
+        vector<char> row;
+        for (char &c : line) row.push_back(c);
+        map.push_back(row);
+    }
+    cols = map[0].size();
+    // Find start
+    pair<size_t, size_t> pos;
+    pos.first = 0;
+    for (size_t j=0; j<cols; j++) {
+        if (map[0][j] == '|') pos.second = j;
+    }
+    day19_dir d = day19_dir::down;
+    pair<size_t, size_t> next_pos;
+    string letters = "";
+    char c;
+    bool wandering = true;
+    size_t steps = 1;
+    while (wandering) { // Wandering in the tube network
+        next_pos = day19_step(pos, d);
+        // Check if we've left the map
+        if (!day19_get(map, next_pos, c)) wandering = false;
+        // Examine next char
+        switch (c) {
+            case '|':
+            case '-':
+                // Continue with the same direction
+                pos = next_pos; steps++;
+                break;
+            case '+': {   // Turn towards a valid cell
+                vector<day19_dir> neighbours;
+                day19_dir d_old = d;
+                switch (d) {
+                    case day19_dir::up:
+                    case day19_dir::down:
+                        neighbours.push_back(day19_dir::left);
+                        neighbours.push_back(day19_dir::right);
+                        break;
+                    case day19_dir::left:
+                    case day19_dir::right:
+                        neighbours.push_back(day19_dir::up);
+                        neighbours.push_back(day19_dir::down);
+                        break;
+                }
+                for (day19_dir d_new : neighbours) {
+                    char c_n;
+                    if (day19_get(map, day19_step(next_pos, d_new), c_n)) {
+                        switch (c_n) {
+                            case ' ':
+                                // Not valid, go on
+                                break;
+                            case '|':
+                                if (d_new == day19_dir::up || d_new == day19_dir::down) d = d_new;
+                                break;
+                            case '-':
+                                if (d_new == day19_dir::left || d_new == day19_dir::right) d = d_new;
+                                break;
+                            default:
+                                // Letter is also valid, go on
+                                letters += c_n;
+                                d = d_new;
+                                break;
+                        }
+                    }
+                }
+                // If we didn't find new direction, end the wandering
+                if (d_old == d) {
+                    wandering = false;
+                } else {
+                    pos = next_pos; steps++;
+                }
+            }
+                break;
+            case ' ':
+                // Shouldn't happen, only at termination
+                wandering = false;
+                break;
+            default:
+                // This is a letter, save it and continue
+                letters+=c;
+                pos = next_pos; steps++;
+                break;
+        } // end switch(c)
+    } // end while
+    if (!part_two) {
+        return letters;
+    } else {
+        return to_string(steps);
+    }
+
 }
