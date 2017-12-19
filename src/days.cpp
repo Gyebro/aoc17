@@ -1662,7 +1662,7 @@ bool day19_get(const vector<vector<char>> &map, pair<size_t,size_t> pos, char& c
     return true;
 }
 
-string day19_a(string s, bool part_two) {
+string day19_a(string s, bool part_two, bool print_animation) {
     vector<vector<char>> map;
     size_t rows, cols;
     for (string &line : split(s,'\n')) {
@@ -1670,6 +1670,7 @@ string day19_a(string s, bool part_two) {
         for (char &c : line) row.push_back(c);
         map.push_back(row);
     }
+    rows = map.size();
     cols = map[0].size();
     // Find start
     pair<size_t, size_t> pos;
@@ -1683,8 +1684,22 @@ string day19_a(string s, bool part_two) {
     char c;
     bool wandering = true;
     size_t steps = 1;
+    bitmap_image img(cols,rows);
+    if (print_animation) {
+        img.set_all_channels(255,255,255);
+        for (size_t i=0; i<rows; i++) {
+            for (size_t j=0; j<cols; j++) {
+                if (map[i][j] != ' ') {
+                    img.set_pixel(j, i, 0, 0, 0);
+                }
+            }
+        }
+        img.set_pixel(pos.second, pos.first, 0, 200, 255);
+        img.save_image("frame_"+to_string(steps)+".bmp");
+    }
     while (wandering) { // Wandering in the tube network
         next_pos = day19_step(pos, d);
+        img.set_pixel(pos.second, pos.first, 255, 0, 0);
         // Check if we've left the map
         if (!day19_get(map, next_pos, c)) wandering = false;
         // Examine next char
@@ -1748,6 +1763,10 @@ string day19_a(string s, bool part_two) {
                 pos = next_pos; steps++;
                 break;
         } // end switch(c)
+        if (print_animation) {
+            img.set_pixel(pos.second, pos.first, 0, 200, 255);
+            img.save_image("frame_"+to_string(steps)+".bmp");
+        }
     } // end while
     if (!part_two) {
         return letters;

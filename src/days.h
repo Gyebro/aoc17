@@ -51,6 +51,6 @@ size_t day17_a(const size_t s, bool part_two = false);
 
 long long int day18_a(string s, bool part_two = false);
 
-string day19_a(string s, bool part_two = false);
+string day19_a(string s, bool part_two = false, bool print_animation = false);
 
 #endif //AOC17_DAYS_H
