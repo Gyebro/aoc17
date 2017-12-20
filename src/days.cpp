@@ -1602,8 +1602,6 @@ long long int day18_a(string s, bool part_two) {
     return 0;
 }
 
-#endif //TODAY_ONLY
-
 enum class day19_dir {
     up, down, left, right
 };
@@ -1773,5 +1771,100 @@ string day19_a(string s, bool part_two, bool print_animation) {
     } else {
         return to_string(steps);
     }
+
+}
+
+#endif //TODAY_ONLY
+
+struct vec3i {
+    int x, y, z;
+};
+
+vec3i string_to_vec3i(const string s, const char delim=',') {
+    vector<string> parts = split(s, delim);
+    return {stoi(parts[0]), stoi(parts[1]), stoi(parts[2])};
+}
+
+int vec3i_norm0(const vec3i& v) {
+    return abs(v.x)+abs(v.y)+abs(v.z);
+}
+
+bool vec3i_equal(const vec3i& l, const vec3i& r) {
+    return (l.x == r.x) && (l.y == r.y) && (l.z == r.z);
+}
+
+vec3i vec3i_add(const vec3i& l, const vec3i& r) {
+    return {l.x+r.x, l.y+r.y, l.z+r.z};
+}
+
+class day20_particle {
+public:
+    vec3i pos, vel, acc;
+    day20_particle(const vec3i &pos, const vec3i &vel, const vec3i &acc) : pos(pos), vel(vel), acc(acc) {}
+    void update() {
+        vel = vec3i_add(vel, acc);
+        pos = vec3i_add(pos, vel);
+    }
+};
+
+size_t day20_a(string s, bool part_two) {
+    vector<string> parts;
+    vec3i pos, vel, acc;
+    vector<day20_particle> particles;
+    for (string line : split(s, '\n')) {
+        // Every line has a format of
+        // p=<-11104,1791,5208>, v=<-6,36,-84>, a=<19,-5,-4>
+        parts = split(line, '<');
+        if (parts.size() == 4) {
+            pos = string_to_vec3i(split(parts[1], '>')[0]);
+            vel = string_to_vec3i(split(parts[2], '>')[0]);
+            acc = string_to_vec3i(split(parts[3], '>')[0]);
+            particles.push_back(day20_particle(pos, vel, acc));
+        }
+    }
+    //cout << "Particles: " << particles.size() << endl;
+    if (!part_two) {
+        // Find the one with the lowest norm0 of acceleration
+        int min_acc = 99999;
+        size_t p_idx = 0;
+        for (size_t i=0; i<particles.size(); i++) {
+            int n = vec3i_norm0(particles[i].acc);
+            if (n < min_acc) {
+                min_acc = n; p_idx = i;
+            }
+        }
+        return p_idx;
+    }
+    // Part two
+    bool resolving_collisions = true;
+    vector<size_t> to_erase;
+    size_t steps = 0;
+    while (resolving_collisions) {
+        // Find collisions
+        to_erase.resize(0);
+        for (size_t i=0; i<particles.size()-1; i++) {
+            for (size_t j=i+1; j<particles.size(); j++) {
+                if (vec3i_equal(particles[i].pos, particles[j].pos)) {
+                    if (find(to_erase, i) >= to_erase.size()) to_erase.push_back(i);
+                    if (find(to_erase, j) >= to_erase.size()) to_erase.push_back(j);
+                }
+            }
+        }
+        // Erase them
+        while (!to_erase.empty()) {
+            particles.erase(particles.begin()+to_erase.back());
+            to_erase.pop_back();
+        }
+        // Update particles
+        for (day20_particle &p : particles) {
+            p.update();
+        }
+        steps++;
+        if (steps >= 1000) {
+            resolving_collisions = false;
+            cout << "steps: " << steps << " particles: " << particles.size() << endl;
+        }
+    }
+    return particles.size();
 
 }

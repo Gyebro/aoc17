@@ -53,4 +53,8 @@ long long int day18_a(string s, bool part_two = false);
 
 string day19_a(string s, bool part_two = false, bool print_animation = false);
 
+size_t day20_a(string s, bool part_two = false);
+
+
+
 #endif //AOC17_DAYS_H
