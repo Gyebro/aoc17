@@ -1774,8 +1774,6 @@ string day19_a(string s, bool part_two, bool print_animation) {
 
 }
 
-#endif //TODAY_ONLY
-
 struct vec3i {
     int x, y, z;
 };
@@ -1866,5 +1864,210 @@ size_t day20_a(string s, bool part_two) {
         }
     }
     return particles.size();
+}
 
+#endif //TODAY_ONLY
+
+bool day21_pix(const char c) {
+    return (c=='#');
+}
+
+class day21_blk2 {
+public:
+    bool data[2][2];
+    day21_blk2(const string& s) {
+        data[0][0] = day21_pix(s[0]);
+        data[0][1] = day21_pix(s[1]);
+        data[1][0] = day21_pix(s[3]);
+        data[1][1] = day21_pix(s[4]);
+    }
+    day21_blk2(bool a, bool b, bool c, bool d) : data{{a,b},{c,d}} {}
+    day21_blk2 flip_h() { return day21_blk2(data[1][0],data[1][1],
+                                            data[0][0],data[0][1]); }
+    day21_blk2 flip_v() { return day21_blk2(data[0][1],data[0][0],
+                                            data[1][1],data[1][0]); }
+    day21_blk2 rotate() { return day21_blk2(data[0][1],data[1][1],
+                                            data[0][0],data[1][0]); }
+    bool equal_to(const day21_blk2& b) const {
+        return data[0][0] == b.data[0][0] && data[0][1] == b.data[0][1] &&
+               data[1][0] == b.data[1][0] && data[1][1] == b.data[1][1];
+    }
+};
+
+class day21_blk3 {
+public:
+    bool data[3][3];
+    day21_blk3(const string& s) {
+        data[0][0] = day21_pix(s[0]);
+        data[0][1] = day21_pix(s[1]);
+        data[0][2] = day21_pix(s[2]);
+        data[1][0] = day21_pix(s[4]);
+        data[1][1] = day21_pix(s[5]);
+        data[1][2] = day21_pix(s[6]);
+        data[2][0] = day21_pix(s[8]);
+        data[2][1] = day21_pix(s[9]);
+        data[2][2] = day21_pix(s[10]);
+    }
+    day21_blk3(bool a, bool b, bool c,
+                bool d, bool e, bool f,
+                bool g, bool h, bool i) : data{{a,b,c},{d,e,f},{g,h,i}} {}
+    day21_blk3 flip_h() { return day21_blk3(data[2][0],data[2][1],data[2][2],
+                                            data[1][0],data[1][1],data[1][2],
+                                            data[0][0],data[0][1],data[0][2]); }
+    day21_blk3 flip_v() { return day21_blk3(data[0][2],data[0][1],data[0][0],
+                                            data[1][2],data[1][1],data[1][0],
+                                            data[2][2],data[2][1],data[2][0]); }
+    day21_blk3 rotate() { return day21_blk3(data[0][2],data[1][2],data[2][2],
+                                            data[0][1],data[1][1],data[2][1],
+                                            data[0][0],data[1][0],data[2][0]); }
+    bool equal_to(const day21_blk3& b) const {
+        return data[0][0] == b.data[0][0] && data[0][1] == b.data[0][1] && data[0][2] == b.data[0][2] &&
+               data[1][0] == b.data[1][0] && data[1][1] == b.data[1][1] && data[1][2] == b.data[1][2] &&
+               data[2][0] == b.data[2][0] && data[2][1] == b.data[2][1] && data[2][2] == b.data[2][2];
+    }
+};
+
+class day21_blk4 {
+public:
+    bool data[4][4];
+    day21_blk4(const string& s) {
+        data[0][0] = day21_pix(s[0]);
+        data[0][1] = day21_pix(s[1]);
+        data[0][2] = day21_pix(s[2]);
+        data[0][3] = day21_pix(s[3]); // skip 4 '/'
+        data[1][0] = day21_pix(s[5]);
+        data[1][1] = day21_pix(s[6]);
+        data[1][2] = day21_pix(s[7]);
+        data[1][3] = day21_pix(s[8]); // skip 9 '/'
+        data[2][0] = day21_pix(s[10]);
+        data[2][1] = day21_pix(s[11]);
+        data[2][2] = day21_pix(s[12]);
+        data[2][3] = day21_pix(s[13]); // skip 14 '/'
+        data[3][0] = day21_pix(s[15]);
+        data[3][1] = day21_pix(s[16]);
+        data[3][2] = day21_pix(s[17]);
+        data[3][3] = day21_pix(s[18]);
+    }
+};
+
+class day21_rule23 {
+public:
+    day21_blk2 input;
+    day21_blk3 output;
+    day21_rule23(const string &i, const string &o) : input(i), output(o) {}
+};
+
+class day21_rule34 {
+public:
+    day21_blk3 input;
+    day21_blk4 output;
+    day21_rule34(const string &i, const string &o) : input(i), output(o) {}
+};
+
+template <class blk_in, class blk_out, class rule_T>
+blk_out replace(const vector<rule_T>& r, blk_in b) {
+    // Generate the alternates of block b
+    blk_in fh = b.flip_h();
+    blk_in fv = b.flip_v();
+    vector<blk_in> blocks;
+    blocks.push_back(b);
+    blocks.push_back(fh);
+    blocks.push_back(fv);
+    for (size_t i=0; i<3; i++) {
+        b = b.rotate(); fh = fh.rotate(); fv = fv.rotate();
+        blocks.push_back(b);
+        blocks.push_back(fh);
+        blocks.push_back(fv);
+    }
+    for (const rule_T& rule : r) {
+        for (const blk_in blk : blocks) {
+            if (blk.equal_to(rule.input)) {
+                return rule.output;
+            }
+        }
+    }
+}
+
+size_t day21_a(string s, bool part_two) {
+    // Parse the rules
+    vector<day21_rule23> r23;
+    vector<day21_rule34> r34;
+    for (const string& line : split(s,'\n')) {
+        vector<string> parts = split(line, '/');
+        if (parts.size() == 4) {
+            parts = split(line, ' ');
+            r23.emplace_back(day21_rule23(parts[0],parts[2]));
+        } else if (parts.size() == 6) {
+            parts = split(line, ' ');
+            r34.emplace_back(day21_rule34(parts[0],parts[2]));
+        }
+    }
+    vector<vector<bool>> image;
+    const bool ON = true;
+    const bool OFF = false;
+    //.#.
+    //..#
+    //###
+    image.push_back({ OFF, ON, OFF });
+    image.push_back({ OFF, OFF, ON });
+    image.push_back({ ON, ON, ON });
+    size_t iterations = 0;
+    if (!part_two) iterations = 5;
+    else iterations = 18;
+    for (size_t it=0; it<iterations; it++) {
+        vector<vector<bool>> new_image;
+        if (image.size() % 2 == 0) {
+            // Create new canvas
+            size_t new_size = image.size()/2*3;
+            vector<bool> row(new_size);
+            for (size_t nr = 0; nr<new_size; nr++) new_image.push_back(row);
+            // Divide to 2x2 and use rules 2->3
+            vector<day21_blk2> blocks;
+            for (size_t i=0; i<image.size(); i+=2) {
+                for (size_t j=0; j<image.size(); j+=2) {
+                    day21_blk2 b(  image[i  ][j  ],image[i  ][j+1],
+                                   image[i+1][j  ],image[i+1][j+1]);
+                    day21_blk3 b3 = replace<day21_blk2, day21_blk3, day21_rule23>(r23, b);
+                    // Place new block in the image
+                    size_t i0 = i+i/2; size_t j0 = j+j/2;
+                    for (size_t ii=0; ii<3; ii++) {
+                        for (size_t jj=0; jj<3; jj++) {
+                            new_image[ii+i0][jj+j0] = b3.data[ii][jj];
+                        }
+                    }
+                }
+            }
+        } else if (image.size() % 3 == 0) {
+            // Create new canvas
+            size_t new_size = image.size()/3*4;
+            vector<bool> row(new_size);
+            for (size_t nr = 0; nr<new_size; nr++) new_image.push_back(row);
+            // Divide to 3x3 and use rules 3->4
+            vector<day21_blk3> blocks;
+            for (size_t i=0; i<image.size(); i+=3) {
+                for (size_t j=0; j<image.size(); j+=3) {
+                    day21_blk3 b(  image[i  ][j  ],image[i  ][j+1],image[i  ][j+2],
+                                   image[i+1][j  ],image[i+1][j+1],image[i+1][j+2],
+                                   image[i+2][j  ],image[i+2][j+1],image[i+2][j+2]);
+                    day21_blk4 b4 = replace<day21_blk3, day21_blk4, day21_rule34>(r34, b);
+                    // Place new block in the image
+                    size_t i0 = i+i/3; size_t j0 = j+j/3;
+                    for (size_t ii=0; ii<4; ii++) {
+                        for (size_t jj=0; jj<4; jj++) {
+                            new_image[ii+i0][jj+j0] = b4.data[ii][jj];
+                        }
+                    }
+                }
+            }
+        }
+        image = new_image;
+    }
+    // Count pixels which are ON
+    size_t pixels_ON = 0;
+    for (size_t i=0; i<image.size(); i++) {
+        for (size_t j=0; j<image.size(); j++) {
+            if (image[i][j] == ON) pixels_ON++;
+        }
+    }
+    return pixels_ON;
 }
