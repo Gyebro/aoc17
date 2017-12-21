@@ -1950,22 +1950,16 @@ public:
     }
 };
 
-class day21_rule23 {
+template <class blk_in, class blk_out>
+class day21_rule {
 public:
-    day21_blk2 input;
-    day21_blk3 output;
-    day21_rule23(const string &i, const string &o) : input(i), output(o) {}
+    blk_in input;
+    blk_out output;
+    day21_rule(const string &i, const string &o) : input(i), output(o) {}
 };
 
-class day21_rule34 {
-public:
-    day21_blk3 input;
-    day21_blk4 output;
-    day21_rule34(const string &i, const string &o) : input(i), output(o) {}
-};
-
-template <class blk_in, class blk_out, class rule_T>
-blk_out replace(const vector<rule_T>& r, blk_in b) {
+template <class blk_in, class blk_out>
+blk_out replace(const vector<day21_rule<blk_in, blk_out>>& r, blk_in b) {
     // Generate the alternates of block b
     blk_in fh = b.flip_h();
     blk_in fv = b.flip_v();
@@ -1979,7 +1973,7 @@ blk_out replace(const vector<rule_T>& r, blk_in b) {
         blocks.push_back(fh);
         blocks.push_back(fv);
     }
-    for (const rule_T& rule : r) {
+    for (const day21_rule<blk_in, blk_out>& rule : r) {
         for (const blk_in blk : blocks) {
             if (blk.equal_to(rule.input)) {
                 return rule.output;
@@ -1988,18 +1982,31 @@ blk_out replace(const vector<rule_T>& r, blk_in b) {
     }
 }
 
-size_t day21_a(string s, bool part_two) {
+void day21_image(const vector<vector<bool>>& image, const size_t it) {
+    uint8_t on;
+    bitmap_image img(image.size(),image.size());
+    for (size_t i=0; i<image.size(); i++) {
+        for (size_t j=0; j<image.size(); j++) {
+            if (image[i][j]) on = 1;
+            else on = 0;
+            img.set_pixel(j,i,on*150,on*200,on*255);
+        }
+    }
+    img.save_image("day21_"+to_string(it)+".bmp");
+}
+
+size_t day21_a(string s, bool part_two, bool visualise) {
     // Parse the rules
-    vector<day21_rule23> r23;
-    vector<day21_rule34> r34;
+    vector<day21_rule<day21_blk2, day21_blk3>> r23;
+    vector<day21_rule<day21_blk3, day21_blk4>> r34;
     for (const string& line : split(s,'\n')) {
         vector<string> parts = split(line, '/');
         if (parts.size() == 4) {
             parts = split(line, ' ');
-            r23.emplace_back(day21_rule23(parts[0],parts[2]));
+            r23.emplace_back(day21_rule<day21_blk2, day21_blk3>(parts[0],parts[2]));
         } else if (parts.size() == 6) {
             parts = split(line, ' ');
-            r34.emplace_back(day21_rule34(parts[0],parts[2]));
+            r34.emplace_back(day21_rule<day21_blk3, day21_blk4>(parts[0],parts[2]));
         }
     }
     vector<vector<bool>> image;
@@ -2014,7 +2021,8 @@ size_t day21_a(string s, bool part_two) {
     size_t iterations = 0;
     if (!part_two) iterations = 5;
     else iterations = 18;
-    for (size_t it=0; it<iterations; it++) {
+    if (visualise) day21_image(image, 0);
+    for (size_t it=1; it<=iterations; it++) {
         vector<vector<bool>> new_image;
         if (image.size() % 2 == 0) {
             // Create new canvas
@@ -2027,7 +2035,7 @@ size_t day21_a(string s, bool part_two) {
                 for (size_t j=0; j<image.size(); j+=2) {
                     day21_blk2 b(  image[i  ][j  ],image[i  ][j+1],
                                    image[i+1][j  ],image[i+1][j+1]);
-                    day21_blk3 b3 = replace<day21_blk2, day21_blk3, day21_rule23>(r23, b);
+                    day21_blk3 b3 = replace<day21_blk2, day21_blk3>(r23, b);
                     // Place new block in the image
                     size_t i0 = i+i/2; size_t j0 = j+j/2;
                     for (size_t ii=0; ii<3; ii++) {
@@ -2049,7 +2057,7 @@ size_t day21_a(string s, bool part_two) {
                     day21_blk3 b(  image[i  ][j  ],image[i  ][j+1],image[i  ][j+2],
                                    image[i+1][j  ],image[i+1][j+1],image[i+1][j+2],
                                    image[i+2][j  ],image[i+2][j+1],image[i+2][j+2]);
-                    day21_blk4 b4 = replace<day21_blk3, day21_blk4, day21_rule34>(r34, b);
+                    day21_blk4 b4 = replace<day21_blk3, day21_blk4>(r34, b);
                     // Place new block in the image
                     size_t i0 = i+i/3; size_t j0 = j+j/3;
                     for (size_t ii=0; ii<4; ii++) {
@@ -2061,6 +2069,8 @@ size_t day21_a(string s, bool part_two) {
             }
         }
         image = new_image;
+        // Generate picture if requested
+        if (visualise) day21_image(image, it);
     }
     // Count pixels which are ON
     size_t pixels_ON = 0;

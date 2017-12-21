@@ -55,6 +55,6 @@ string day19_a(string s, bool part_two = false, bool print_animation = false);
 
 size_t day20_a(string s, bool part_two = false);
 
-size_t day21_a(string s, bool part_two = false);
+size_t day21_a(string s, bool part_two = false, bool visualise = false);
 
 #endif //AOC17_DAYS_H
