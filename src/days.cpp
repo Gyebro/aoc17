@@ -1866,8 +1866,6 @@ size_t day20_a(string s, bool part_two) {
     return particles.size();
 }
 
-#endif //TODAY_ONLY
-
 bool day21_pix(const char c) {
     return (c=='#');
 }
@@ -2080,4 +2078,205 @@ size_t day21_a(string s, bool part_two, bool visualise) {
         }
     }
     return pixels_ON;
+}
+
+#endif //TODAY_ONLY
+
+enum class day22_state {
+    clean, weakened, infected, flagged
+};
+
+// Sparse matrix for storing infected nodes
+struct elem {
+    int c; // column
+    day22_state state;
+};
+
+class row {
+public:
+    row() {r=0; e.resize(0);}
+    int r;
+    vector<elem> e;
+    elem& getCol(int c) {
+        for (elem& a : e) {
+            if (a.c == c) return a;
+        }
+        elem new_elem;
+        new_elem.c = c;
+        new_elem.state = day22_state::clean;
+        e.push_back(new_elem);
+        return e.back();
+    }
+    bool hasCol(int c) {
+        for (elem& a : e) {
+            if (a.c == c) return true;
+        }
+        return false;
+    }
+    bool hasCol(int c, size_t& col_addr) {
+        for (size_t i=0; i<e.size(); i++) {
+            if (e[i].c == c) {
+                col_addr = i; return true;
+            }
+        }
+        return false;
+    }
+    void remove(int c) {
+        for (size_t i=0; i<e.size(); i++) {
+            if (e[i].c == c) {
+                e.erase(e.begin()+i); break;
+            }
+        }
+    }
+};
+
+class sparseMx {
+public:
+    vector<row> rows;
+    sparseMx() {rows.resize(0);}
+    row& getRow(int r) {
+        for (row& a : rows) {
+            if (a.r == r) return a;
+        }
+        row new_row;
+        new_row.r = r;
+        rows.push_back(new_row);
+        return rows.back();
+    }
+    bool hasRow(int r) {
+        for (row& a : rows) {
+            if (a.r == r) return true;
+        }
+        return false;
+    }
+    bool hasRow(int r, size_t& row_addr) {
+        for (size_t i=0; i<rows.size(); i++) {
+            if (rows[i].r == r) {
+                row_addr = i; return true;
+            }
+        }
+        return false;
+    }
+    void insert(int at_row, int at_col, day22_state s=day22_state::infected) {
+        getRow(at_row).getCol(at_col).state=s;
+    }
+    void remove(int at_row, int at_col) {
+        if (hasRow(at_row)) {
+            getRow(at_row).remove(at_col);
+        }
+    }
+    bool has(int at_row, int at_col) {
+        if (hasRow(at_row)) {
+            if (getRow(at_row).hasCol(at_col)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool has(int at_row, int at_col, size_t& row_addr, size_t& col_addr) {
+        if (hasRow(at_row, row_addr)) {
+            if (rows[row_addr].hasCol(at_col, col_addr)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    elem& get(int at_row, int at_col) {
+        return getRow(at_row).getCol(at_col);
+    }
+
+};
+
+pair<int, int> turn(pair<int, int> dir, bool left) {
+    if (left) {
+        return pair<int,int>(-dir.second, dir.first);
+    } else {
+        return pair<int,int>(dir.second, -dir.first);
+    }
+};
+
+pair<int, int> reverse_dir(pair<int, int> dir) {
+    return pair<int,int>(-dir.first, -dir.second);
+};
+
+pair<int, int> step(pair<int, int> pos, pair<int, int> dir) {
+    return pair<int,int>(pos.first+dir.first, pos.second+dir.second);
+};
+
+size_t day22_a(string s, bool part_two) {
+    int r=0;
+    int c=0;
+    sparseMx map;
+    int cols = 0;
+    for (string& line : split(s, '\n')) {
+        cols = line.size();
+        for (c=0; c<line.length(); c++) {
+            if (line[c] == '#') map.insert(r, c);
+        }
+        r--;
+    }
+    pair<int, int> pos(cols/2,r/2);
+    pair<int, int> dir(0,1); // Up
+    size_t infections = 0;
+    if (!part_two) {
+        for (size_t b = 0; b < 10000; b++) {
+            // Note: x = pos.first = column, y = pos.second = row
+            if (map.has(pos.second, pos.first)) {
+                // Current node is infected, turn right
+                dir = turn(dir, false);
+                // Clean the current node
+                map.remove(pos.second, pos.first);
+            } else {
+                // Current node is not infected, turn left
+                dir = turn(dir, true);
+                // Infect the current node
+                map.insert(pos.second, pos.first);
+                infections++;
+            }
+            // Move one step in the new direction
+            pos = step(pos, dir);
+        }
+        return infections;
+    }
+    // Part two
+    for (size_t b = 0; b < 10000000; b++) {
+        //if (b%10000 == 0) cout << double(b)/10000000.0 << endl;
+        // Note: x = pos.first = column, y = pos.second = row
+        size_t row_addr, col_addr;
+        if (map.has(pos.second, pos.first, row_addr, col_addr)) {
+            // Examine it's state
+            switch (map.rows[row_addr].e[col_addr].state) {
+                case day22_state::clean:
+                    // Should't happen as clean nodes are removed
+                    cout << "Warning: violation of logic!\n";
+                    break;
+                case day22_state::weakened:
+                    // Weakened becomes infected
+                    map.rows[row_addr].e[col_addr].state = day22_state::infected;
+                    // Do not turn
+                    infections++;
+                    break;
+                case day22_state::infected:
+                    // Infected becomes flagged
+                    map.rows[row_addr].e[col_addr].state = day22_state::flagged;
+                    // Current node is infected, turn right
+                    dir = turn(dir, false);
+                    break;
+                case day22_state::flagged:
+                    // Flagged becomes clean (remove it)
+                    map.remove(pos.second, pos.first);
+                    // Reverse direction
+                    dir = reverse_dir(dir);
+                    break;
+            }
+        } else {
+            // Clean becomes weakened
+            map.insert(pos.second, pos.first, day22_state::weakened);
+            // Turn left
+            dir = turn(dir, true);
+        }
+        // Move one step in the new direction
+        pos = step(pos, dir);
+    }
+    return infections;
 }
