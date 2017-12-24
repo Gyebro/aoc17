@@ -2080,8 +2080,6 @@ size_t day21_a(string s, bool part_two, bool visualise) {
     return pixels_ON;
 }
 
-#endif //TODAY_ONLY
-
 enum class day22_state {
     clean, weakened, infected, flagged
 };
@@ -2279,4 +2277,190 @@ size_t day22_a(string s, bool part_two) {
         pos = step(pos, dir);
     }
     return infections;
+}
+
+#endif //TODAY_ONLY
+
+enum class day23_type {
+    set,
+    sub,
+    mul,
+    jnz
+};
+
+enum class day23_arg_type {
+    reg,
+    val
+};
+
+struct day23_instruction {
+    day23_type type;
+    day23_arg_type type_a;
+    long long int reg_a;
+    day23_arg_type type_b;
+    long long int reg_b;
+};
+
+class day23_program {
+private:
+    vector<day23_instruction> program;
+    vector<char> reg_names;
+    vector<long long int> reg_vals;
+    size_t iptr;
+public:
+    bool terminated;
+    day23_program(const string s, bool part_two = false) {
+        terminated = false;
+        vector<string> parts;
+        reg_names.resize(0);
+        // Register names are fixed: 'a' to 'h'
+        for (char c = 'a'; c <= 'h'; c++) {
+            reg_names.push_back(c);
+            reg_vals.push_back(0);
+        }
+        // Now parse instructions
+        day23_instruction i;
+        for (const string& line : split(s,'\n')) {
+            parts = split(line, ' ');
+            string itype = parts[0];
+            int reg_a, reg_b;
+            day23_arg_type type_a, type_b;
+            // TODO: Use isdigit
+            try {
+                reg_a = stoi(parts[1]);
+                type_a = day23_arg_type::val;
+            } catch (...) {
+                reg_a = (int)parts[1][0];
+                type_a = day23_arg_type::reg;
+            }
+            try {
+                reg_b = stoi(parts[2]);
+                type_b = day23_arg_type::val;
+            } catch (...) {
+                reg_b = (int)parts[2][0];
+                type_b = day23_arg_type::reg;
+            }
+            if        (itype == "set") {
+                i.type = day23_type::set;
+            } else if (itype == "sub") {
+                i.type = day23_type::sub;
+            } else if (itype == "mul") {
+                i.type = day23_type::mul;
+
+            } else if (itype == "jnz") {
+                i.type = day23_type::jnz;
+            }
+            i.reg_a = reg_a; i.type_a = type_a;
+            i.reg_b = reg_b; i.type_b = type_b;
+            program.push_back(i);
+        }
+        // Set iptr to 0
+        iptr = 0;
+        // For part two, set value of 'a' to 1
+        if (part_two) reg_vals[find(reg_names, 'a')]=1;
+    }
+    long long int run(bool part_two = false) {
+        bool running = true;
+        size_t mul_invocations = 0;
+        // Run the program
+        size_t cycles = 0;
+        while (running) {
+            cycles++;
+            day23_instruction i = program[iptr];
+            switch (i.type) {
+                case day23_type::set:
+                    if (i.type_b == day23_arg_type::reg) {
+                        reg_vals[find(reg_names, (char)i.reg_a)] = reg_vals[find(reg_names, (char)i.reg_b)];
+                    } else {
+                        reg_vals[find(reg_names, (char)i.reg_a)] = i.reg_b;
+                    }
+                    iptr++;
+                    break;
+                case day23_type::sub:
+                    if (i.type_b == day23_arg_type::reg) {
+                        reg_vals[find(reg_names, (char)i.reg_a)] -= reg_vals[find(reg_names, (char)i.reg_b)];
+                    } else {
+                        reg_vals[find(reg_names, (char)i.reg_a)] -= i.reg_b;
+                    }
+                    iptr++;
+                    break;
+                case day23_type::mul:
+                    if (i.type_b == day23_arg_type::reg) {
+                        reg_vals[find(reg_names, (char)i.reg_a)] *= reg_vals[find(reg_names, (char)i.reg_b)];
+                    } else {
+                        reg_vals[find(reg_names, (char)i.reg_a)] *= i.reg_b;
+                    }
+                    mul_invocations++;
+                    iptr++;
+                    break;
+                case day23_type::jnz: // Jump if Not Zero
+                {
+                    bool jump;
+                    if (i.type_a == day23_arg_type::val) {
+                        jump = (i.reg_a != 0);
+                    } else {
+                        jump = (reg_vals[find(reg_names, (char)i.reg_a)] != 0);
+                    }
+                    if (jump) {
+                        if (i.type_b == day23_arg_type::val) {
+                            iptr += i.reg_b;
+                        } else {
+                            iptr += reg_vals[find(reg_names, (char)i.reg_b)];
+                        }
+                    } else {
+                        iptr++;
+                    }
+                }
+                    break;
+            }
+            if ((iptr < 0) || (iptr >= program.size())) {
+                running = false;
+                terminated = true;
+            }
+            if (part_two && (cycles % 100000000 == 0)) {
+                cout << "Cycle: " << cycles << endl;
+                for (size_t rr=0; rr<reg_names.size(); rr++) {
+                    cout << reg_names[rr] << ":" << reg_vals[rr] << endl;
+                }
+                cout << endl;
+            }
+        }
+        if (!part_two) return mul_invocations;
+        return reg_vals[find(reg_names, 'h')];
+    }
+};
+
+long long int day23_a(string s, bool part_two) {
+    day23_program p(s, part_two);
+    return p.run(part_two);
+}
+
+bool day23_is_prime(long long int i) {
+    long long int max = sqrt(i);
+    for (long long int j=2; j<=max; j++) {
+        if (i%j==0) return false;
+    }
+    return true;
+}
+
+long long int day23_b() {
+    long long int a,b,c,d,e,f,g,h;
+    a=1;
+    b=c=d=e=f=g=h=0;
+    b=79;
+    c=b;
+    if (a!=0) {
+        b*=100;
+        b+=100000;
+        c=b;
+        c+=17000;
+    }
+    // b=107900
+    // c=124900
+    for (; b<=c; b+=17) {
+        g=b;
+        f=day23_is_prime(g);
+        if (f==0) h++;
+    }
+    return h;
 }

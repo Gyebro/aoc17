@@ -20,7 +20,7 @@
 //#define DAY19
 //#define DAY20
 //#define DAY21
-#define DAY22
+//#define DAY22
 #define DAY23
 #define DAY24
 #define DAY25
@@ -181,6 +181,13 @@ int main() {
     cout << "Day 22: Part Two\n";
     //cout << day22_a("..#\n#..\n...", true) << endl;
     cout << day22_a(file_to_string("day22.txt"), true) << endl;
+#endif
+
+#ifdef DAY23
+    cout << "Day 23: Part One\n";
+    cout << day23_a(file_to_string("day23.txt")) << endl;
+    cout << "Day 23: Part Two\n";
+    cout << day23_b() << endl;
 #endif
 
 #endif // ifndef RUN_BENCHMARKS

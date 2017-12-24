@@ -59,4 +59,8 @@ size_t day21_a(string s, bool part_two = false, bool visualise = false);
 
 size_t day22_a(string s, bool part_two = false);
 
+long long int day23_a(string s, bool part_two = false);
+
+long long int day23_b();
+
 #endif //AOC17_DAYS_H
