@@ -22,7 +22,7 @@
 //#define DAY21
 //#define DAY22
 //#define DAY23
-#define DAY24
+//#define DAY24
 #define DAY25
 
 #include "macros.h"
@@ -195,6 +195,11 @@ int main() {
     cout << day24_a(file_to_string("day24.txt")) << endl;
     cout << "Day 24: Part Two\n";
     cout << day24_a(file_to_string("day24.txt"), true) << endl;
+#endif
+
+#ifdef DAY25
+    cout << "Day 25: Part One\n";
+    cout << day25_a() << endl;
 #endif
 
 #endif // ifndef RUN_BENCHMARKS

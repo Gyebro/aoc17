@@ -2463,8 +2463,6 @@ long long int day23_b() {
     return h;
 }
 
-#endif //TODAY_ONLY
-
 class day24_link {
 public:
     size_t a, b;
@@ -2541,4 +2539,123 @@ size_t day24_a(string s, bool part_two) {
         sort(out.begin(), out.end(), day24_sort_func);
         return out.back().first;
     }
+}
+
+#endif //TODAY_ONLY
+
+class day25_turing_machine {
+public:
+    enum class state_t {
+        A,B,C,D,E,F
+    };
+    day25_turing_machine() {
+        cursor = 0;
+        state = state_t::A;
+        tape.push_back(false);
+    }
+    void move_cursor(bool right) {
+        size_t len=tape.size();
+        if (right) { // Moving right
+            if (cursor == len-1) {
+                // Cursor is at the right end
+                tape.push_back(false);
+            }
+            cursor++;
+        } else { // Moving left
+            if (cursor == 0) {
+                // Cursor is at the left end
+                tape.push_front(false);
+                // No need to move cursor in this case
+            } else {
+                cursor--;
+            }
+        }
+    }
+    void step() {
+        bool current = tape[cursor];
+        bool new_val;
+        state_t new_s;
+        bool right;
+        switch (state) {
+            case state_t::A:
+                if(!current) {
+                    new_val=true;
+                    right=true;
+                } else {
+                    new_val=false;
+                    right=false;
+                }
+                new_s=state_t::B;
+                break;
+            case state_t::B:
+                if(!current) {
+                    new_val=true;
+                    right=false;
+                    new_s=state_t::C;
+                } else {
+                    new_val=false;
+                    right=true;
+                    new_s=state_t::E;
+                }
+                break;
+            case state_t::C:
+                if(!current) {
+                    new_val=true;
+                    right=true;
+                    new_s=state_t::E;
+                } else {
+                    new_val=false;
+                    right=false;
+                    new_s=state_t::D;
+                }
+                break;
+            case state_t::D:
+                new_val=true;
+                right=false;
+                new_s=state_t::A;
+                break;
+            case state_t::E:
+                new_val=false;
+                right=true;
+                if(!current) {
+                    new_s=state_t::A;
+                } else {
+                    new_s=state_t::F;
+                }
+                break;
+            case state_t::F:
+                new_val=true;
+                right=true;
+                if(!current) {
+                    new_s=state_t::E;
+                } else {
+                    new_s=state_t::A;
+                }
+                break;
+        }
+        tape[cursor]=new_val;
+        state=new_s;
+        move_cursor(right);
+    }
+    void run(size_t c) {
+        for (size_t i=0; i<c; i++) step();
+    }
+    size_t count() {
+        size_t sum=0;
+        for (bool b : tape) {
+            if (b) sum++;
+        }
+        return sum;
+    }
+private:
+    deque<bool> tape;
+    size_t cursor;
+    state_t state;
+};
+
+size_t day25_a() {
+    day25_turing_machine tm;
+    size_t cycles = 12683008;
+    tm.run(cycles);
+    return tm.count();
 }

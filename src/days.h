@@ -65,4 +65,6 @@ long long int day23_b();
 
 size_t day24_a(string s, bool part_two = false);
 
+size_t day25_a();
+
 #endif //AOC17_DAYS_H
