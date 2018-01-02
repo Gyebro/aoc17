@@ -2279,8 +2279,6 @@ size_t day22_a(string s, bool part_two) {
     return infections;
 }
 
-#endif //TODAY_ONLY
-
 enum class day23_type {
     set,
     sub,
@@ -2463,4 +2461,84 @@ long long int day23_b() {
         if (f==0) h++;
     }
     return h;
+}
+
+#endif //TODAY_ONLY
+
+class day24_link {
+public:
+    size_t a, b;
+    vector<size_t> compat;
+    bool compatible(const day24_link& other) const {
+        return a == other.a || a == other.b ||
+               b == other.a || b == other.b;
+    }
+    size_t other_port(size_t p) const {
+        return (p==a) ? b : a;
+    }
+};
+
+void day24_dfs(vector<day24_link> &links, vector<size_t> used_ids, vector<size_t> used_ports, size_t new_id,
+               size_t target, vector<size_p> &out) {
+    used_ids.push_back(new_id);
+    used_ports.push_back(links[new_id].other_port(target));
+    day24_link last = links[new_id];
+    bool traversed = false;
+    for (size_t id : last.compat) {
+        if (!has_elem(used_ids, id)) {
+            if(links[id].a == target || links[id].b == target) {
+                day24_dfs(links, used_ids, used_ports, id, links[id].other_port(target), out);
+                traversed=true;
+            }
+        }
+    }
+    if(!traversed) {
+        size_t sum=target;
+        for(size_t p:used_ports) sum+=2*p;
+        size_t len=used_ports.size();
+        out.push_back({sum, len});
+    }
+}
+
+bool day24_sort_func(const size_p &a, const size_p &b) {
+    if (a.second != b.second)
+        return a.second < b.second;
+    else
+        return a.first < b.first;
+}
+
+size_t day24_a(string s, bool part_two) {
+    vector<day24_link> links;
+    for (const string& line : split(s,'\n')) {
+        vector<string> p=split(line,'/');
+        day24_link l;
+        l.a = stoul(p[0]);
+        l.b = stoul(p[1]);
+        links.push_back(l);
+    }
+    size_t comp = 0;
+    for (size_t i=0; i<links.size()-1; i++) {
+        for (size_t j=i+1; j<links.size(); j++) {
+            if(links[i].compatible(links[j])) {
+                links[i].compat.push_back(j);
+                links[j].compat.push_back(i);
+                comp++;
+            }
+        }
+    }
+    vector<size_t> used_ids, used_ports;
+    size_t i;
+    for(i=0; i<links.size(); i++) {
+        if(links[i].a==0 || links[i].b==0) break;
+    }
+    size_t target=links[i].other_port(0);
+    vector<size_p> out;
+    day24_dfs(links, used_ids, used_ports, i, target, out);
+    if (!part_two) {
+        size_p strong = *max_element(out.begin(), out.end());
+        return strong.first;
+    } else {
+        sort(out.begin(), out.end(), day24_sort_func);
+        return out.back().first;
+    }
 }

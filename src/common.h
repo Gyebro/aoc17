@@ -20,6 +20,8 @@
 
 using namespace std;
 
+typedef pair<size_t, size_t> size_p;
+
 string file_to_string(string filename);
 
 template<typename T>
@@ -52,6 +54,11 @@ size_t min_idx(const vector<T>& v) {
     auto result = std::min_element(v.begin(), v.end());
     auto index = std::distance(v.begin(), result);
     return index;
+}
+
+template <class T>
+bool has_elem(const vector<T>& v, const T e) {
+    return find(v.begin(), v.end(), e) != v.end();
 }
 
 template<class T>
