@@ -28,3 +28,6 @@ Day 22 | 1.388 | 2128.180
 Day 23 | 0.929 | 0.503
 Day 24 | 281.151 | 294.137
 Day 25 | 59.188 | 0.000
+
+## And so the printer has been fixed
+![AoC17 calendar](calendar17.gif)
