@@ -20,10 +20,10 @@
 //#define DAY19
 //#define DAY20
 //#define DAY21
-//#define DAY22
+#define DAY22
 //#define DAY23
 //#define DAY24
-#define DAY25
+//#define DAY25
 
 #include "macros.h"
 
@@ -176,10 +176,8 @@ int main() {
 
 #ifdef DAY22
     cout << "Day 22: Part One\n";
-    //cout << day22_a("..#\n#..\n...") << endl;
     cout << day22_a(file_to_string("day22.txt")) << endl;
     cout << "Day 22: Part Two\n";
-    //cout << day22_a("..#\n#..\n...", true) << endl;
     cout << day22_a(file_to_string("day22.txt"), true) << endl;
 #endif
 
@@ -203,8 +201,6 @@ int main() {
 #endif
 
 #endif // ifndef RUN_BENCHMARKS
-
-
 
 
 
@@ -401,6 +397,64 @@ int main() {
     c.start();
     cout << day19_a(day19_input, true) << endl;
     c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "\nDay 20\n";
+    string day20_input = file_to_string("day20.txt");
+    tasks.emplace_back("Day 20");
+    c.start();
+    cout << day20_a(day20_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day20_a(day20_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "\nDay 21\n";
+    string day21_input = file_to_string("day21.txt");
+    tasks.emplace_back("Day 21");
+    c.start();
+    cout << day21_a(day21_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day21_a(day21_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "\nDay 22\n";
+    string day22_input = file_to_string("day22.txt");
+    tasks.emplace_back("Day 22");
+    c.start();
+    cout << day22_a(day22_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day22_a(day22_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "\nDay 23\n";
+    string day23_input = file_to_string("day23.txt");
+    tasks.emplace_back("Day 23");
+    c.start();
+    cout << day23_a(day23_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day23_b() << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "\nDay 24\n";
+    string day24_input = file_to_string("day24.txt");
+    tasks.emplace_back("Day 24");
+    c.start();
+    cout << day24_a(day24_input) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    c.start();
+    cout << day24_a(day24_input, true) << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+
+    cout << "\nDay 25\n";
+    tasks.emplace_back("Day 25");
+    c.start();
+    cout << day25_a() << endl;
+    c.stop(); time_ms.push_back(c.read_millisec());
+    // No part two
+    time_ms.push_back(0);
 
 
     cout << endl << endl;

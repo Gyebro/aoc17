@@ -1860,7 +1860,7 @@ size_t day20_a(string s, bool part_two) {
         steps++;
         if (steps >= 1000) {
             resolving_collisions = false;
-            cout << "steps: " << steps << " particles: " << particles.size() << endl;
+            //cout << "steps: " << steps << " particles: " << particles.size() << endl;
         }
     }
     return particles.size();
@@ -2090,9 +2090,9 @@ struct elem {
     day22_state state;
 };
 
-class row {
+class sparse_row {
 public:
-    row() {r=0; e.resize(0);}
+    sparse_row() {r=0; e.resize(0);}
     int r;
     vector<elem> e;
     elem& getCol(int c) {
@@ -2128,21 +2128,21 @@ public:
     }
 };
 
-class sparseMx {
+class sparse_mx {
 public:
-    vector<row> rows;
-    sparseMx() {rows.resize(0);}
-    row& getRow(int r) {
-        for (row& a : rows) {
+    vector<sparse_row> rows;
+    sparse_mx() {rows.resize(0);}
+    sparse_row& getRow(int r) {
+        for (sparse_row& a : rows) {
             if (a.r == r) return a;
         }
-        row new_row;
+        sparse_row new_row;
         new_row.r = r;
         rows.push_back(new_row);
         return rows.back();
     }
     bool hasRow(int r) {
-        for (row& a : rows) {
+        for (sparse_row& a : rows) {
             if (a.r == r) return true;
         }
         return false;
@@ -2204,7 +2204,7 @@ pair<int, int> step(pair<int, int> pos, pair<int, int> dir) {
 size_t day22_a(string s, bool part_two) {
     int r=0;
     int c=0;
-    sparseMx map;
+    sparse_mx map;
     int cols = 0;
     for (string& line : split(s, '\n')) {
         cols = line.size();
@@ -2541,8 +2541,6 @@ size_t day24_a(string s, bool part_two) {
     }
 }
 
-#endif //TODAY_ONLY
-
 class day25_turing_machine {
 public:
     enum class state_t {
@@ -2659,3 +2657,5 @@ size_t day25_a() {
     tm.run(cycles);
     return tm.count();
 }
+
+#endif //TODAY_ONLY
